@@ -11,3 +11,5 @@ CREATE TABLE IF NOT EXISTS media.media (
     created_at      TIMESTAMP       DEFAULT NOW(),
     updated_at      TIMESTAMP       DEFAULT NOW()
 );
+
+ALTER TABLE media.media ADD COLUMN title_native TEXT;

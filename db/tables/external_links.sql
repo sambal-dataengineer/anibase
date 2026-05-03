@@ -7,3 +7,5 @@ CREATE TABLE IF NOT EXISTS external_links.links (
     created_at  TIMESTAMP       DEFAULT NOW(),
     updated_at  TIMESTAMP       DEFAULT NOW()
 );
+
+ALTER TABLE external_links.links ADD CONSTRAINT links_media_url_unique UNIQUE (media_id, url);

@@ -11,3 +11,13 @@ CREATE TABLE IF NOT EXISTS metadata.details (
     created_at      TIMESTAMP       DEFAULT NOW(),
     updated_at      TIMESTAMP       DEFAULT NOW()
 );
+
+ALTER TABLE metadata.details ADD CONSTRAINT details_media_id_unique UNIQUE (media_id);
+
+ALTER TABLE metadata.details
+    ADD COLUMN chapters SMALLINT,
+    ADD COLUMN volumes SMALLINT,
+    ADD COLUMN start_date DATE,
+    ADD COLUMN end_date DATE,
+    ADD COLUMN next_airing_episode SMALLINT,
+    ADD COLUMN next_airing_at TIMESTAMP;
