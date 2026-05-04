@@ -332,6 +332,7 @@
         />
       </div>
       <div class="nav-links">
+        <a href="/browse.html">Browse</a>
         <a href="#anime" class="active">Anime</a>
         <a href="#manga">Manga</a>
       </div>
@@ -472,7 +473,7 @@
           if (e.key === "Enter") {
             const q = e.target.value.trim();
             if (q)
-              window.location.href = `search.html?q=${encodeURIComponent(q)}`;
+              window.location.href = `/browse.html?q=${encodeURIComponent(q)}`;
           }
         });
     </script>

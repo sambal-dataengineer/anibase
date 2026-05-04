@@ -1,0 +1,668 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Browse — AniBase</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-primary: #0a0a0f;
+        --bg-secondary: #111118;
+        --bg-card: #1a1a24;
+        --bg-card-hover: #202030;
+        --accent: #e85d26;
+        --accent-dim: #c44d1e;
+        --text-primary: #f0f0f0;
+        --text-muted: #888899;
+        --text-dim: #444455;
+        --border: rgba(255, 255, 255, 0.08);
+        --radius: 8px;
+        --sidebar-width: 200px;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: "Inter", sans-serif;
+        min-height: 100vh;
+      }
+
+      /* ── Navbar ── */
+      nav {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: var(--bg-secondary);
+        border-bottom: 1px solid var(--border);
+        padding: 0 2rem;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+      }
+      .nav-logo {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.8rem;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+        text-decoration: none;
+        flex-shrink: 0;
+      }
+      .nav-search {
+        flex: 1;
+        max-width: 480px;
+        position: relative;
+      }
+      .nav-search input {
+        width: 100%;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 0.5rem 1rem 0.5rem 2.4rem;
+        color: var(--text-primary);
+        font-family: "Inter", sans-serif;
+        font-size: 0.875rem;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      .nav-search input:focus {
+        border-color: var(--accent);
+      }
+      .nav-search::before {
+        content: "⌕";
+        position: absolute;
+        left: 0.7rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        font-size: 1rem;
+        pointer-events: none;
+      }
+      .nav-links {
+        margin-left: auto;
+        display: flex;
+        gap: 1.5rem;
+      }
+      .nav-links a {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: color 0.2s;
+      }
+      .nav-links a:hover,
+      .nav-links a.active {
+        color: var(--text-primary);
+      }
+
+      /* ── Page layout: sidebar + main ── */
+      /*
+        display: flex puts sidebar and main side by side.
+        sidebar is fixed width, main takes the rest with flex: 1.
+      */
+      .page-layout {
+        display: flex;
+        min-height: calc(100vh - 60px);
+      }
+
+      /* ── Sidebar ── */
+      .sidebar {
+        width: var(--sidebar-width);
+        flex-shrink: 0; /* never shrinks, always full width */
+        background: var(--bg-secondary);
+        border-right: 1px solid var(--border);
+        padding: 1.5rem 1rem;
+        position: sticky;
+        top: 60px; /* sticks below navbar */
+        height: calc(100vh - 60px);
+        overflow-y: auto; /* scroll if genres overflow */
+        scrollbar-width: thin;
+        scrollbar-color: var(--border) transparent;
+      }
+
+      /* Section label inside sidebar (TYPE, GENRE) */
+      .filter-label {
+        font-size: 0.62rem;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--text-dim);
+        margin-bottom: 0.6rem;
+        margin-top: 1.25rem;
+      }
+      .filter-label:first-child {
+        margin-top: 0;
+      }
+
+      /* ── Type buttons (All / Anime / Manga) ── */
+      .type-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+      }
+      .type-btn {
+        width: 100%;
+        padding: 0.45rem 0.75rem;
+        border-radius: 6px;
+        border: 1px solid transparent;
+        background: transparent;
+        color: var(--text-muted);
+        font-family: "Inter", sans-serif;
+        font-size: 0.82rem;
+        font-weight: 500;
+        cursor: pointer;
+        text-align: left;
+        transition:
+          background 0.15s,
+          color 0.15s;
+      }
+      .type-btn:hover {
+        background: var(--bg-card);
+        color: var(--text-primary);
+      }
+      .type-btn.active {
+        background: var(--accent);
+        color: white;
+        border-color: transparent;
+      }
+
+      /* ── Genre pills in sidebar ── */
+      /*
+        Genres are pill-shaped buttons stacked vertically.
+        Active genre gets accent colour.
+      */
+      .genre-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+      .genre-btn {
+        width: 100%;
+        padding: 0.4rem 0.75rem;
+        border-radius: 6px;
+        border: 1px solid transparent;
+        background: transparent;
+        color: var(--text-muted);
+        font-family: "Inter", sans-serif;
+        font-size: 0.8rem;
+        cursor: pointer;
+        text-align: left;
+        transition:
+          background 0.15s,
+          color 0.15s;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .genre-btn:hover {
+        background: var(--bg-card);
+        color: var(--text-primary);
+      }
+      .genre-btn.active {
+        background: var(--bg-card);
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+
+      /* ── Main content area ── */
+      .main {
+        flex: 1;
+        padding: 1.5rem 2rem;
+        min-width: 0; /* prevents flex overflow — always add to flex children with grids */
+      }
+
+      /* Page header inside main */
+      .browse-header {
+        display: flex;
+        align-items: baseline;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+      .browse-title {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.8rem;
+        letter-spacing: 0.04em;
+        color: var(--text-primary);
+      }
+      .browse-meta {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+      }
+      /* active filter pill shown in header */
+      .active-filter-pill {
+        font-size: 0.72rem;
+        padding: 0.2rem 0.65rem;
+        border-radius: 999px;
+        background: var(--bg-card);
+        border: 1px solid var(--accent);
+        color: var(--accent);
+      }
+
+      /* ── Adaptive grid ── */
+      .results-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 1.25rem;
+      }
+
+      .media-card {
+        cursor: pointer;
+        transition: transform 0.2s;
+      }
+      .media-card:hover {
+        transform: translateY(-4px);
+      }
+      .media-card img {
+        width: 100%;
+        aspect-ratio: 3 / 4;
+        object-fit: cover;
+        border-radius: var(--radius);
+        display: block;
+        background: var(--bg-card);
+      }
+      .card-title {
+        font-size: 0.78rem;
+        color: var(--text-primary);
+        margin-top: 0.5rem;
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .card-meta {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        margin-top: 0.15rem;
+      }
+      .card-score {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        margin-top: 0.1rem;
+      }
+
+      /* ── Spinner + sentinel ── */
+      .sentinel {
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 1rem 0;
+        grid-column: 1 / -1; /* spans full grid width */
+      }
+      .spinner {
+        display: none;
+        width: 24px;
+        height: 24px;
+        border: 2px solid var(--border);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+      }
+      .spinner.visible {
+        display: block;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* ── Empty state ── */
+      .empty-state {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 5rem 2rem;
+        gap: 1rem;
+        text-align: center;
+        grid-column: 1 / -1;
+      }
+      .empty-state.visible {
+        display: flex;
+      }
+      .empty-icon {
+        font-size: 3rem;
+        opacity: 0.3;
+      }
+      .empty-title {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.5rem;
+        color: var(--text-muted);
+      }
+      .empty-sub {
+        font-size: 0.85rem;
+        color: var(--text-dim);
+      }
+
+      /* ── Footer ── */
+      footer {
+        padding: 2rem;
+        text-align: center;
+        font-size: 0.8rem;
+        color: var(--text-dim);
+        border-top: 1px solid var(--border);
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- ① NAVBAR -->
+    <nav>
+      <a href="/" class="nav-logo">AniBase</a>
+      <div class="nav-search">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Search anime, manga..."
+        />
+      </div>
+      <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/browse.html" class="active">Browse</a>
+      </div>
+    </nav>
+
+    <!-- ② PAGE LAYOUT: sidebar left, grid right -->
+    <div class="page-layout">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <!-- TYPE filter -->
+        <div class="filter-label">Type</div>
+        <div class="type-buttons">
+          <button class="type-btn active" data-type="">All</button>
+          <button class="type-btn" data-type="ANIME">Anime</button>
+          <button class="type-btn" data-type="MANGA">Manga</button>
+        </div>
+
+        <!-- GENRE filter — populated by JS from /media/genres -->
+        <div class="filter-label">Genre</div>
+        <div class="genre-list" id="genreList">
+          <!-- genre buttons injected here -->
+        </div>
+      </aside>
+
+      <!-- MAIN: header + grid -->
+      <main class="main">
+        <div class="browse-header">
+          <div class="browse-title">Browse</div>
+          <div class="browse-meta" id="browseMeta">Loading...</div>
+          <div id="activeFilterPill"></div>
+        </div>
+
+        <!--
+          results-grid is a CSS grid.
+          Cards are appended here by JS.
+          sentinel sits inside the grid so IntersectionObserver
+          fires when user scrolls to the bottom.
+        -->
+        <div class="results-grid" id="resultsGrid">
+          <div class="empty-state" id="emptyState">
+            <div class="empty-icon">🎌</div>
+            <div class="empty-title">No titles found</div>
+            <div class="empty-sub" id="emptySubtext">
+              Try a different filter
+            </div>
+          </div>
+          <div class="sentinel" id="sentinel">
+            <div class="spinner" id="spinner"></div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <footer>
+      AniBase &nbsp;·&nbsp; Data from AniList API &nbsp;·&nbsp; Built with
+      FastAPI + PostgreSQL
+    </footer>
+
+    <script>
+      const API = "http://localhost:8000";
+
+      // ── State ─────────────────────────────────────────────
+      let currentType = ""; // "" = All, "ANIME", "MANGA"
+      let currentGenre = ""; // "" = All genres, or genre name e.g. "Action"
+      let currentQuery = "";
+      let currentPage = 1;
+      let isLoading = false;
+      let hasMore = true;
+      const PAGE_SIZE = 20;
+
+      // ── DOM refs ──────────────────────────────────────────
+      const resultsGrid = document.getElementById("resultsGrid");
+      const browseMeta = document.getElementById("browseMeta");
+      const genreList = document.getElementById("genreList");
+      const spinner = document.getElementById("spinner");
+      const sentinelEl = document.getElementById("sentinel");
+      const emptyState = document.getElementById("emptyState");
+      const emptySubtext = document.getElementById("emptySubtext");
+      const filterPill = document.getElementById("activeFilterPill");
+
+      // ── Load genres into sidebar ──────────────────────────
+      /*
+        We call /media/genres once on page load.
+        Each genre becomes a clickable button in the sidebar.
+        Clicking a genre button sets currentGenre and reloads results.
+      */
+      async function loadGenres() {
+        const res = await fetch(`${API}/media/genres`);
+        const genres = await res.json();
+
+        genres.forEach((g) => {
+          const btn = document.createElement("button");
+          btn.className = "genre-btn";
+          btn.textContent = g.name;
+          btn.dataset.genre = g.name; // store genre name on the element
+
+          btn.addEventListener("click", () => {
+            // If already active, clicking again clears the genre filter
+            if (currentGenre === g.name) {
+              currentGenre = "";
+              btn.classList.remove("active");
+            } else {
+              // Deactivate all genre buttons, activate this one
+              document
+                .querySelectorAll(".genre-btn")
+                .forEach((b) => b.classList.remove("active"));
+              currentGenre = g.name;
+              btn.classList.add("active");
+            }
+            resetAndLoad();
+          });
+
+          genreList.appendChild(btn);
+        });
+      }
+
+      // ── Type button click handlers ─────────────────────────
+      document.querySelectorAll(".type-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document
+            .querySelectorAll(".type-btn")
+            .forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          currentType = btn.dataset.type;
+          resetAndLoad();
+        });
+      });
+
+      // ── resetAndLoad ──────────────────────────────────────
+      // Called whenever a filter changes.
+      // Clears the grid and fetches page 1 with new filters.
+      function resetAndLoad() {
+        currentPage = 1;
+        hasMore = true;
+        isLoading = false;
+
+        const cards = resultsGrid.querySelectorAll(".media-card");
+        cards.forEach((c) => c.remove());
+        emptyState.classList.remove("visible");
+
+        updateFilterPill();
+        fetchResults();
+      }
+
+      // ── updateFilterPill ──────────────────────────────────
+      // Shows which filters are active in the browse header
+      function updateFilterPill() {
+        filterPill.innerHTML = "";
+        if (currentGenre) {
+          const pill = document.createElement("span");
+          pill.className = "active-filter-pill";
+          pill.textContent = currentGenre;
+          filterPill.appendChild(pill);
+        }
+      }
+
+      // ── fetchResults ──────────────────────────────────────
+      async function fetchResults() {
+        if (isLoading || !hasMore) return;
+
+        isLoading = true;
+        spinner.classList.add("visible");
+
+        // Build URL with active filters
+        // encodeURIComponent handles genres with spaces e.g. "Slice of Life"
+        let url;
+        if (currentQuery) {
+          url = `${API}/media/search?q=${encodeURIComponent(currentQuery)}&page=${currentPage}&page_size=${PAGE_SIZE}`;
+          if (currentType) url += `&type=${currentType}`;
+          if (currentGenre) url += `&genre=${encodeURIComponent(currentGenre)}`; // ← ADD THIS
+          console.log("Fetching:", url);
+        } else {
+          url = `${API}/media/?page=${currentPage}&page_size=${PAGE_SIZE}`;
+          if (currentType) url += `&type=${currentType}`;
+          if (currentGenre) url += `&genre=${encodeURIComponent(currentGenre)}`;
+        }
+        try {
+          const res = await fetch(url);
+          const items = await res.json();
+
+          if (items.length < PAGE_SIZE) hasMore = false;
+
+          if (currentPage === 1 && items.length === 0) {
+            emptyState.classList.add("visible");
+            emptySubtext.textContent = currentGenre
+              ? `No ${currentType || "titles"} found in "${currentGenre}"`
+              : "No titles found";
+            browseMeta.textContent = "0 titles";
+          } else {
+            // Show approximate count
+            browseMeta.textContent = hasMore
+              ? `${currentPage * PAGE_SIZE}+ titles`
+              : `${(currentPage - 1) * PAGE_SIZE + items.length} titles`;
+
+            items.forEach((media) => {
+              const card = createCard(media);
+              // Insert cards BEFORE the sentinel (sentinel stays at bottom)
+              resultsGrid.insertBefore(card, sentinelEl);
+            });
+
+            currentPage++;
+          }
+        } catch (err) {
+          console.error("Browse error:", err);
+          browseMeta.textContent = "Something went wrong.";
+        } finally {
+          isLoading = false;
+          spinner.classList.remove("visible");
+        }
+      }
+
+      // ── createCard ────────────────────────────────────────
+      function createCard(media) {
+        const card = document.createElement("div");
+        card.className = "media-card";
+
+        const title = media.title_english || media.title_romaji;
+        const score = media.average_score
+          ? `⭐ ${media.average_score}`
+          : "No score";
+        const meta = [media.type, media.format].filter(Boolean).join(" · ");
+
+        card.innerHTML = `
+          <img src="${media.cover_image_url || ""}" alt="${title}" loading="lazy" />
+          <div class="card-title">${title}</div>
+          <div class="card-meta">${meta}</div>
+          <div class="card-score">${score}</div>
+        `;
+
+        card.onclick = () => {
+          window.location.href = `detail.html?id=${media.id}`;
+        };
+
+        return card;
+      }
+
+      // ── IntersectionObserver — infinite scroll ─────────────
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && hasMore) {
+            fetchResults();
+          }
+        },
+        { threshold: 0.1 },
+      );
+      observer.observe(sentinelEl);
+
+      // ── Search bar navigation ──────────────────────────────
+      document
+        .getElementById("searchInput")
+        .addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            const q = e.target.value.trim();
+
+            // Empty search → go back to browse with filters preserved but no query
+            if (!q) {
+              let url = `/browse.html`;
+              if (currentType)
+                url += `?type=${encodeURIComponent(currentType)}`;
+              if (currentGenre)
+                url += `${currentType ? "&" : "?"}genre=${encodeURIComponent(currentGenre)}`;
+              window.location.href = url;
+              return;
+            }
+
+            let url = `/browse.html?q=${encodeURIComponent(q)}`;
+            if (currentType) url += `&type=${encodeURIComponent(currentType)}`;
+            if (currentGenre)
+              url += `&genre=${encodeURIComponent(currentGenre)}`;
+            window.location.href = url;
+          }
+        });
+
+      // ── Init ──────────────────────────────────────────────
+      // Read ?q= from URL — if user searched from another page
+      const urlParams = new URLSearchParams(window.location.search);
+      const initialQuery = urlParams.get("q") || "";
+      const initialType = urlParams.get("type") || "";
+      const initialGenre = urlParams.get("genre") || "";
+
+      if (initialQuery) {
+        currentQuery = initialQuery;
+        document.getElementById("searchInput").value = initialQuery;
+      }
+      if (initialType) {
+        currentType = initialType;
+      }
+      if (initialGenre) {
+        currentGenre = initialGenre;
+      }
+
+      loadGenres();
+      fetchResults();
+    </script>
+  </body>
+</html>
