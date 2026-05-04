@@ -755,6 +755,18 @@
 
       // Kick everything off
       loadDetail();
+
+      // ── Search bar navigation ──────────────────────────────
+      // When user presses Enter in the navbar search, go to search.html
+      document
+        .getElementById("searchInput")
+        .addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            const q = e.target.value.trim();
+            if (q)
+              window.location.href = `search.html?q=${encodeURIComponent(q)}`;
+          }
+        });
     </script>
   </body>
 </html>
