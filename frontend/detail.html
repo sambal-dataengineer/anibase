@@ -1,0 +1,760 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AniBase</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ── CSS Variables — same palette as index.html ── */
+      :root {
+        --bg-primary: #0a0a0f;
+        --bg-secondary: #111118;
+        --bg-card: #1a1a24;
+        --bg-card-hover: #202030;
+        --accent: #e85d26;
+        --accent-dim: #c44d1e;
+        --text-primary: #f0f0f0;
+        --text-muted: #888899;
+        --text-dim: #444455;
+        --border: rgba(255, 255, 255, 0.08);
+        --radius: 8px;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: "Inter", sans-serif;
+        min-height: 100vh;
+      }
+
+      /* ── Navbar (identical to index.html) ── */
+      nav {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: var(--bg-secondary);
+        border-bottom: 1px solid var(--border);
+        padding: 0 2rem;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+      }
+      .nav-logo {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.8rem;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+        text-decoration: none;
+        flex-shrink: 0;
+      }
+      .nav-search {
+        flex: 1;
+        max-width: 480px;
+        position: relative;
+      }
+      .nav-search input {
+        width: 100%;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 0.5rem 1rem 0.5rem 2.4rem;
+        color: var(--text-primary);
+        font-family: "Inter", sans-serif;
+        font-size: 0.875rem;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      .nav-search input:focus {
+        border-color: var(--accent);
+      }
+      .nav-search::before {
+        content: "⌕";
+        position: absolute;
+        left: 0.7rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        font-size: 1rem;
+        pointer-events: none;
+      }
+      .nav-links {
+        margin-left: auto;
+        display: flex;
+        gap: 1.5rem;
+      }
+      .nav-links a {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: color 0.2s;
+      }
+      .nav-links a:hover {
+        color: var(--text-primary);
+      }
+
+      /* ── Hero: split — cover left, info right ── */
+      .hero {
+        position: relative;
+        min-height: 380px;
+        display: flex;
+        overflow: hidden;
+        border-bottom: 1px solid var(--border);
+      }
+
+      /* Blurred full-width background behind everything */
+      .hero-bg {
+        position: absolute;
+        inset: 0;
+        background-size: cover;
+        background-position: center top;
+        filter: blur(24px) brightness(0.25);
+        transform: scale(1.1);
+        z-index: 0;
+      }
+
+      /* Left panel: cover image */
+      .hero-cover-panel {
+        position: relative;
+        z-index: 1;
+        flex-shrink: 0;
+        width: 220px; /* fixed left column width */
+        display: flex;
+        align-items: flex-end;
+        padding: 2rem 1.5rem;
+        /* subtle dark gradient so cover stands out */
+        background: linear-gradient(to right, rgba(0, 0, 0, 0.4), transparent);
+      }
+      .hero-cover {
+        width: 150px;
+        height: 215px;
+        object-fit: cover;
+        border-radius: var(--radius);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
+        flex-shrink: 0;
+      }
+
+      /* Right panel: all text info */
+      .hero-info-panel {
+        position: relative;
+        z-index: 1;
+        flex: 1;
+        display: flex;
+        align-items: flex-end;
+        padding: 2rem 2.5rem;
+      }
+      .hero-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.7rem;
+        max-width: 700px;
+      }
+
+      /* ANIME / MANGA type badge */
+      .hero-type {
+        font-size: 0.68rem;
+        font-weight: 600;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--accent);
+      }
+
+      .hero-title {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 3.2rem;
+        line-height: 1;
+        color: var(--text-primary);
+      }
+
+      /* genre pills row */
+      .hero-genres {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+      .genre-pill {
+        font-size: 0.72rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      /* Score pill — gold, prominent */
+      .hero-score {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--text-muted);
+      }
+      .score-value {
+        color: #f5c518;
+        font-weight: 700;
+        font-size: 1.3rem;
+      }
+
+      /* Status dot + text */
+      .hero-status {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+      }
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .status-dot.finished {
+        background: #888;
+      }
+      .status-dot.releasing {
+        background: #2ecc71;
+      }
+      .status-dot.upcoming {
+        background: #f5c518;
+      }
+      .status-dot.cancelled {
+        background: #e74c3c;
+      }
+
+      /* ── Info Cards row ── */
+      /*
+        A horizontal strip of small stat cards below the hero.
+        Each card has a muted label (e.g. "Episodes") and a bold value (e.g. "26").
+      */
+      .info-cards {
+        display: flex;
+        gap: 1px; /* 1px gap creates thin divider lines between cards */
+        background: var(--border); /* the gap colour becomes the divider */
+        border-bottom: 1px solid var(--border);
+        overflow-x: auto;
+      }
+      .info-card {
+        flex: 1;
+        min-width: 110px;
+        background: var(--bg-secondary);
+        padding: 1rem 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+      }
+      .info-card-label {
+        font-size: 0.65rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--text-dim);
+      }
+      .info-card-value {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      /* ── Shared section wrapper ── */
+      .section {
+        padding: 2rem;
+        border-bottom: 1px solid var(--border);
+        max-width: 1200px;
+        margin: 0 auto;
+        width: 100%;
+      }
+      /* full-width sections (links, etc.) */
+      .section.full-width {
+        max-width: none;
+        margin: 0;
+      }
+      .section-title {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.5rem;
+        letter-spacing: 0.04em;
+        color: var(--text-primary);
+        margin-bottom: 1.25rem;
+      }
+
+      /* ── Synopsis ── */
+      .synopsis-text {
+        font-size: 0.9rem;
+        line-height: 1.8;
+        color: var(--text-muted);
+        max-width: 800px;
+      }
+
+      /* ── Characters horizontal scroll ── */
+      .characters-row {
+        display: flex;
+        gap: 1rem;
+        overflow-x: auto;
+        padding-bottom: 0.75rem;
+        scrollbar-width: thin;
+        scrollbar-color: var(--border) transparent;
+      }
+      .characters-row::-webkit-scrollbar {
+        height: 4px;
+      }
+      .characters-row::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .characters-row::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 2px;
+      }
+
+      .char-card {
+        flex-shrink: 0;
+        width: 100px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        text-align: center;
+      }
+      .char-card img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 50%; /* circular character portraits */
+        border: 2px solid var(--border);
+        background: var(--bg-card);
+      }
+      .char-name {
+        font-size: 0.72rem;
+        color: var(--text-primary);
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .char-role {
+        font-size: 0.65rem;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      /* MAIN characters get accent border */
+      .char-card.main img {
+        border-color: var(--accent);
+      }
+
+      /* ── Relations row ── */
+      .relations-row {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap; /* relations wrap instead of scroll */
+      }
+      .relation-card {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 0.6rem 0.75rem;
+        cursor: pointer;
+        transition:
+          border-color 0.2s,
+          background 0.2s;
+        text-decoration: none;
+        min-width: 220px;
+        max-width: 320px;
+      }
+      .relation-card:hover {
+        border-color: var(--accent);
+        background: var(--bg-card-hover);
+      }
+      .relation-cover {
+        width: 40px;
+        height: 56px;
+        object-fit: cover;
+        border-radius: 4px;
+        flex-shrink: 0;
+        background: var(--bg-primary);
+      }
+      .relation-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+      }
+      .relation-type {
+        font-size: 0.62rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--accent);
+      }
+      .relation-title {
+        font-size: 0.8rem;
+        color: var(--text-primary);
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .relation-format {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+      }
+
+      /* ── Streaming / Reading Links ── */
+      .links-row {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+      .link-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.55rem 1.1rem;
+        border-radius: 6px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        text-decoration: none;
+        border: 1px solid var(--border);
+        background: var(--bg-card);
+        color: var(--text-primary);
+        transition:
+          border-color 0.2s,
+          background 0.2s;
+        cursor: pointer;
+      }
+      .link-btn:hover {
+        border-color: var(--accent);
+        background: var(--bg-card-hover);
+      }
+      /* streaming links get the accent colour */
+      .link-btn.streaming {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .link-btn.streaming:hover {
+        background: var(--accent);
+        color: white;
+      }
+
+      /* ── Empty state ── */
+      .empty {
+        font-size: 0.85rem;
+        color: var(--text-dim);
+        font-style: italic;
+      }
+
+      /* ── Footer ── */
+      footer {
+        padding: 2rem;
+        text-align: center;
+        font-size: 0.8rem;
+        color: var(--text-dim);
+        border-top: 1px solid var(--border);
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- ① NAVBAR -->
+    <nav>
+      <a href="/" class="nav-logo">AniBase</a>
+      <div class="nav-search">
+        <input type="text" placeholder="Search anime, manga..." />
+      </div>
+      <div class="nav-links">
+        <a href="/">Anime</a>
+        <a href="/">Manga</a>
+      </div>
+    </nav>
+
+    <!-- ② HERO: split cover | info -->
+    <section class="hero" id="hero">
+      <div class="hero-bg" id="heroBg"></div>
+
+      <!-- LEFT: cover image -->
+      <div class="hero-cover-panel">
+        <img class="hero-cover" id="heroCover" src="" alt="" />
+      </div>
+
+      <!-- RIGHT: all text -->
+      <div class="hero-info-panel">
+        <div class="hero-info">
+          <div class="hero-type" id="heroType"></div>
+          <div class="hero-title" id="heroTitle">Loading...</div>
+          <div class="hero-genres" id="heroGenres"></div>
+          <div class="hero-score">
+            ⭐ <span class="score-value" id="heroScore">—</span>
+            <span style="font-size: 0.8rem">/ 100</span>
+          </div>
+          <div class="hero-status" id="heroStatus"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ③ INFO CARDS (episodes, year, format, etc.) -->
+    <div class="info-cards" id="infoCards"></div>
+
+    <!-- ④ SYNOPSIS -->
+    <section class="section" id="synopsisSection">
+      <h2 class="section-title">Synopsis</h2>
+      <p class="synopsis-text" id="synopsisText">Loading...</p>
+    </section>
+
+    <!-- ⑤ CHARACTERS -->
+    <section class="section" id="charactersSection">
+      <h2 class="section-title">Characters</h2>
+      <div class="characters-row" id="charactersRow"></div>
+    </section>
+
+    <!-- ⑥ RELATIONS -->
+    <section class="section" id="relationsSection">
+      <h2 class="section-title">Related</h2>
+      <div class="relations-row" id="relationsRow"></div>
+    </section>
+
+    <!-- ⑦ STREAMING / READING LINKS -->
+    <section class="section full-width" id="linksSection">
+      <h2 class="section-title">Where to Watch / Read</h2>
+      <div class="links-row" id="linksRow"></div>
+    </section>
+
+    <footer>
+      AniBase &nbsp;·&nbsp; Data from AniList API &nbsp;·&nbsp; Built with
+      FastAPI + PostgreSQL
+    </footer>
+
+    <script>
+      const API = "http://localhost:8000";
+
+      // ── Read ?id= from the URL ─────────────────────────────
+      // URLSearchParams parses the query string for us
+      // e.g. "detail.html?id=123" → params.get("id") === "123"
+      const params = new URLSearchParams(window.location.search);
+      const mediaId = params.get("id");
+
+      // Safety: if someone opens detail.html with no id, go home
+      if (!mediaId) window.location.href = "/";
+
+      // ── Helpers ───────────────────────────────────────────
+
+      // Strips <br> and HTML tags from AniList descriptions
+      // AniList sends description as HTML — we want plain text
+      function stripHtml(html) {
+        if (!html) return "No description available.";
+        return html
+          .replace(/<br\s*\/?>/gi, "\n") // <br> → newline
+          .replace(/<[^>]+>/g, "") // remove all other tags
+          .trim();
+      }
+
+      // Maps status string to a CSS class for the coloured dot
+      function statusClass(status) {
+        if (!status) return "finished";
+        const s = status.toLowerCase();
+        if (s === "releasing") return "releasing";
+        if (s === "not_yet_released") return "upcoming";
+        if (s === "cancelled") return "cancelled";
+        return "finished";
+      }
+
+      // Makes status text human-readable (NOT_YET_RELEASED → Not Yet Released)
+      function formatStatus(status) {
+        if (!status) return "Unknown";
+        return status
+          .replace(/_/g, " ")
+          .toLowerCase()
+          .replace(/\b\w/g, (c) => c.toUpperCase());
+      }
+
+      // Adds one info card to the #infoCards strip
+      // label = small grey text (e.g. "Episodes")
+      // value = bold white text (e.g. "26")
+      function addInfoCard(label, value) {
+        if (!value && value !== 0) return; // skip null/undefined values
+        const card = document.createElement("div");
+        card.className = "info-card";
+        card.innerHTML = `
+          <div class="info-card-label">${label}</div>
+          <div class="info-card-value">${value}</div>
+        `;
+        document.getElementById("infoCards").appendChild(card);
+      }
+
+      // ── Main loader ───────────────────────────────────────
+      async function loadDetail() {
+        // 1. Fetch full media detail — one call gets everything
+        const res = await fetch(`${API}/media/${mediaId}`);
+        const media = await res.json();
+
+        // Update browser tab title
+        document.title = `${media.title_english || media.title_romaji} — AniBase`;
+
+        // ── HERO ─────────────────────────────────────────────
+
+        // Blurred background — same trick as homepage
+        document.getElementById("heroBg").style.backgroundImage =
+          `url('${media.cover_image_url}')`;
+
+        // Cover image
+        const cover = document.getElementById("heroCover");
+        cover.src = media.cover_image_url || "";
+        cover.alt = media.title_romaji;
+
+        // Type badge (ANIME / MANGA)
+        document.getElementById("heroType").textContent = media.type;
+
+        // Title — prefer English, fall back to Romaji
+        document.getElementById("heroTitle").textContent =
+          media.title_english || media.title_romaji;
+
+        // Genre pills — each genre is {id, name}
+        const genreContainer = document.getElementById("heroGenres");
+        (media.genres || []).slice(0, 5).forEach((g) => {
+          const pill = document.createElement("span");
+          pill.className = "genre-pill";
+          pill.textContent = g.name;
+          genreContainer.appendChild(pill);
+        });
+
+        // Score
+        document.getElementById("heroScore").textContent =
+          media.average_score ?? "N/A";
+
+        // Status dot + text
+        const statusEl = document.getElementById("heroStatus");
+        const statusTxt = formatStatus(media.status);
+        statusEl.innerHTML = `
+          <span class="status-dot ${statusClass(media.status)}"></span>
+          ${statusTxt}
+        `;
+
+        // ── INFO CARDS ────────────────────────────────────────
+        // details is a nested object from the API
+        const d = media.details || {};
+
+        // We only show cards where we actually have data
+        // Anime-specific
+        if (media.type === "ANIME") {
+          addInfoCard("Episodes", d.episodes);
+          addInfoCard("Duration", d.duration ? `${d.duration} min` : null);
+          addInfoCard(
+            "Season",
+            d.season && d.season_year
+              ? `${d.season} ${d.season_year}`
+              : d.season_year,
+          );
+        }
+        // Manga-specific
+        if (media.type === "MANGA") {
+          addInfoCard("Chapters", d.chapters);
+          addInfoCard("Volumes", d.volumes);
+        }
+        // Shared
+        addInfoCard("Format", media.format);
+        addInfoCard("Status", formatStatus(media.status));
+        addInfoCard("Source", d.source ? formatStatus(d.source) : null);
+        addInfoCard("Start Date", d.start_date);
+        addInfoCard("End Date", d.end_date);
+
+        // ── SYNOPSIS ─────────────────────────────────────────
+        // stripHtml cleans up AniList's HTML-in-text descriptions
+        document.getElementById("synopsisText").textContent = stripHtml(
+          d.description,
+        );
+
+        // ── CHARACTERS ───────────────────────────────────────
+        // Separate endpoint: GET /media/{id}/characters
+        const charRes = await fetch(`${API}/media/${mediaId}/characters`);
+        const chars = await charRes.json();
+        const charRow = document.getElementById("charactersRow");
+
+        if (chars.length === 0) {
+          charRow.innerHTML = '<p class="empty">No characters found.</p>';
+        } else {
+          // Show up to 20 characters (MAIN first — API already sorts them)
+          chars.slice(0, 20).forEach((c) => {
+            const card = document.createElement("div");
+            // Add "main" class for accent border on MAIN characters
+            card.className = `char-card ${c.role === "MAIN" ? "main" : ""}`;
+            card.innerHTML = `
+              <img src="${c.image_url || ""}" alt="${c.name_full}" loading="lazy" />
+              <div class="char-name">${c.name_full || "Unknown"}</div>
+              <div class="char-role">${c.role || ""}</div>
+            `;
+            charRow.appendChild(card);
+          });
+        }
+
+        // ── RELATIONS ────────────────────────────────────────
+        // Separate endpoint: GET /media/{id}/relations
+        const relRes = await fetch(`${API}/media/${mediaId}/relations`);
+        const rels = await relRes.json();
+        const relRow = document.getElementById("relationsRow");
+
+        if (rels.length === 0) {
+          relRow.innerHTML = '<p class="empty">No related media found.</p>';
+        } else {
+          rels.forEach((r) => {
+            const card = document.createElement("a");
+            // Clicking a related card navigates to that media's detail page
+            card.href = `detail.html?id=${r.id}`;
+            card.className = "relation-card";
+            card.innerHTML = `
+              <img class="relation-cover"
+                   src="${r.cover_image_url || ""}"
+                   alt="${r.title_english || r.title_romaji}"
+                   loading="lazy" />
+              <div class="relation-info">
+                <div class="relation-type">${r.relation_type || ""}</div>
+                <div class="relation-title">
+                  ${r.title_english || r.title_romaji}
+                </div>
+                <div class="relation-format">${r.format || r.type || ""}</div>
+              </div>
+            `;
+            relRow.appendChild(card);
+          });
+        }
+
+        // ── STREAMING / READING LINKS ─────────────────────────
+        // Uses the main media object — links are already in the response
+        const linksRow = document.getElementById("linksRow");
+        const links = media.links || [];
+
+        if (links.length === 0) {
+          linksRow.innerHTML = '<p class="empty">No links available.</p>';
+        } else {
+          links.forEach((link) => {
+            const btn = document.createElement("a");
+            btn.href = link.url;
+            btn.target = "_blank"; // open in new tab
+            btn.rel = "noopener"; // security best practice for _blank
+            // Streaming links get the orange accent style
+            btn.className = `link-btn ${link.type === "STREAMING" ? "streaming" : ""}`;
+            // Arrow shows it's an external link
+            btn.textContent = `${link.site} ↗`;
+            linksRow.appendChild(btn);
+          });
+        }
+      }
+
+      // Kick everything off
+      loadDetail();
+    </script>
+  </body>
+</html>
