@@ -617,6 +617,34 @@
       );
       observer.observe(sentinelEl);
 
+      // ── Live search debounce on browse page ───────────────
+      let browseDebounceTimer = null;
+      document
+        .getElementById("searchInput")
+        .addEventListener("input", function () {
+          const q = searchInput.value.trim();
+          clearTimeout(browseDebounceTimer);
+          browseDebounceTimer = setTimeout(function () {
+            currentQuery = q;
+            currentPage = 1;
+            hasMore = true;
+            isLoading = false;
+            const cards = resultsGrid.querySelectorAll(".media-card");
+            cards.forEach((c) => c.remove());
+            emptyState.classList.remove("visible");
+            if (q) {
+              history.replaceState(
+                null,
+                "",
+                `/browse.html?q=${encodeURIComponent(q)}`,
+              );
+            } else {
+              history.replaceState(null, "", `/browse.html`);
+            }
+            fetchResults();
+          }, 400);
+        });
+
       // ── Search bar navigation ──────────────────────────────
       document
         .getElementById("searchInput")
