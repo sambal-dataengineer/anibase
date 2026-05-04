@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>404 — AniBase</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-primary: #0a0a0f;
+        --bg-secondary: #111118;
+        --accent: #e85d26;
+        --accent-dim: #c44d1e;
+        --text-primary: #f0f0f0;
+        --text-muted: #888899;
+        --text-dim: #444455;
+        --border: rgba(255, 255, 255, 0.08);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: "Inter", sans-serif;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      nav {
+        background: var(--bg-secondary);
+        border-bottom: 1px solid var(--border);
+        padding: 0 2rem;
+        height: 60px;
+        display: flex;
+        align-items: center;
+      }
+      .nav-logo {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.8rem;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+        text-decoration: none;
+      }
+
+      .container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 2rem;
+        text-align: center;
+        gap: 1.25rem;
+      }
+
+      .error-code {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 10rem;
+        line-height: 1;
+        color: var(--accent);
+        opacity: 0.15;
+        letter-spacing: 0.05em;
+        user-select: none;
+      }
+
+      .error-title {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 2.5rem;
+        letter-spacing: 0.04em;
+        color: var(--text-primary);
+        margin-top: -4rem;
+      }
+
+      .error-sub {
+        font-size: 0.95rem;
+        color: var(--text-muted);
+        max-width: 400px;
+        line-height: 1.7;
+      }
+
+      .btn-home {
+        display: inline-block;
+        margin-top: 0.5rem;
+        padding: 0.65rem 1.75rem;
+        background: var(--accent);
+        color: white;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background 0.2s;
+      }
+      .btn-home:hover {
+        background: var(--accent-dim);
+      }
+
+      .btn-browse {
+        display: inline-block;
+        padding: 0.65rem 1.75rem;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition:
+          border-color 0.2s,
+          color 0.2s;
+      }
+      .btn-browse:hover {
+        border-color: var(--accent);
+        color: var(--text-primary);
+      }
+
+      .btn-row {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      footer {
+        padding: 1.5rem;
+        text-align: center;
+        font-size: 0.8rem;
+        color: var(--text-dim);
+        border-top: 1px solid var(--border);
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a href="/" class="nav-logo">AniBase</a>
+    </nav>
+
+    <div class="container">
+      <div class="error-code">404</div>
+      <div class="error-title">Page Not Found</div>
+      <p class="error-sub">
+        Looks like this title doesn't exist in our database — or maybe it's
+        still airing in another dimension.
+      </p>
+      <div class="btn-row">
+        <a href="/" class="btn-home">Back to Home</a>
+        <a href="/browse.html" class="btn-browse">Browse Titles</a>
+      </div>
+    </div>
+
+    <footer>
+      AniBase &nbsp;·&nbsp; Data from AniList API &nbsp;·&nbsp; Built with
+      FastAPI + PostgreSQL
+    </footer>
+  </body>
+</html>

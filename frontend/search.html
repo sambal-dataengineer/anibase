@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Search — AniBase</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
       href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap"
@@ -267,6 +268,83 @@
         font-size: 0.85rem;
         color: var(--text-dim);
       }
+
+      /* ── Skeletons ── */
+      .skeleton-card {
+        pointer-events: none;
+      }
+      .skeleton-img {
+        width: 100%;
+        aspect-ratio: 3 / 4;
+        border-radius: var(--radius);
+        background: var(--bg-card);
+        overflow: hidden;
+        position: relative;
+      }
+      .skeleton-line {
+        height: 0.75rem;
+        border-radius: 4px;
+        background: var(--bg-card);
+        margin-top: 0.5rem;
+        overflow: hidden;
+        position: relative;
+      }
+      .skeleton-line.short {
+        width: 55%;
+      }
+      .skeleton-img::after,
+      .skeleton-line::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          90deg,
+          transparent 0%,
+          rgba(255, 255, 255, 0.06) 50%,
+          transparent 100%
+        );
+        animation: shimmer 1.4s infinite;
+      }
+      @keyframes shimmer {
+        0% {
+          transform: translateX(-100%);
+        }
+        100% {
+          transform: translateX(100%);
+        }
+      }
+
+      /* ── Mobile ── */
+      @media (max-width: 768px) {
+        /* Navbar */
+        nav {
+          padding: 0 1rem;
+          gap: 1rem;
+        }
+        .nav-links {
+          display: none;
+        }
+        .nav-search {
+          max-width: none;
+        }
+
+        /* Search header */
+        .search-header {
+          padding: 1.25rem 1rem 0;
+        }
+        .search-query-title {
+          font-size: 1.4rem;
+        }
+
+        /* Results grid — fewer columns on mobile */
+        .results-section {
+          padding: 1.25rem 1rem;
+        }
+        .results-grid {
+          grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+          gap: 1rem;
+        }
+      }
     </style>
   </head>
 
@@ -350,6 +428,30 @@
       const spinner = document.getElementById("spinner");
       const sentinelEl = document.getElementById("sentinel");
 
+      // ── Skeletons ─────────────────────────────────────────
+      function createSkeletonCard() {
+        const card = document.createElement("div");
+        card.className = "skeleton-card";
+        card.innerHTML = `
+    <div class="skeleton-img"></div>
+    <div class="skeleton-line"></div>
+    <div class="skeleton-line short"></div>
+  `;
+        return card;
+      }
+
+      function showSkeletons(n = 20) {
+        for (let i = 0; i < n; i++) {
+          resultsGrid.appendChild(createSkeletonCard());
+        }
+      }
+
+      function removeSkeletons() {
+        resultsGrid
+          .querySelectorAll(".skeleton-card")
+          .forEach((el) => el.remove());
+      }
+
       // ── Single input listener with debounce ───────────────
       searchInput.addEventListener("input", function () {
         const q = searchInput.value.trim();
@@ -396,6 +498,7 @@
         if (isLoading || !hasMore) return;
         isLoading = true;
         spinner.classList.add("visible");
+        if (currentPage === 1) showSkeletons(20);
         try {
           const res = await fetch(
             `${API}/media/search?q=${encodeURIComponent(currentQuery)}&page=${currentPage}&page_size=${PAGE_SIZE}`,
@@ -424,6 +527,7 @@
         } finally {
           isLoading = false;
           spinner.classList.remove("visible");
+          removeSkeletons();
         }
       }
 

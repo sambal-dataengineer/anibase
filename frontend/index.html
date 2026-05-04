@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AniBase</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <!-- Google Fonts: Bebas Neue for logo/headings, Inter for body -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -317,6 +318,94 @@
         font-size: 0.8rem;
         color: var(--text-dim);
       }
+
+      /* ── Skeletons ── */
+      .skeleton-card {
+        pointer-events: none;
+        flex-shrink: 0;
+        width: 130px;
+      }
+      .skeleton-img {
+        width: 130px;
+        height: 185px;
+        border-radius: var(--radius);
+        background: var(--bg-card);
+        overflow: hidden;
+        position: relative;
+      }
+      .skeleton-line {
+        height: 0.75rem;
+        border-radius: 4px;
+        background: var(--bg-card);
+        margin-top: 0.5rem;
+        overflow: hidden;
+        position: relative;
+      }
+      .skeleton-line.short {
+        width: 55%;
+      }
+      .skeleton-img::after,
+      .skeleton-line::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          90deg,
+          transparent 0%,
+          rgba(255, 255, 255, 0.06) 50%,
+          transparent 100%
+        );
+        animation: shimmer 1.4s infinite;
+      }
+      @keyframes shimmer {
+        0% {
+          transform: translateX(-100%);
+        }
+        100% {
+          transform: translateX(100%);
+        }
+      }
+
+      /* ── Mobile ── */
+      @media (max-width: 768px) {
+        /* Navbar */
+        nav {
+          padding: 0 1rem;
+          gap: 1rem;
+        }
+        .nav-links {
+          display: none; /* hide nav links on mobile — search bar is enough */
+        }
+        .nav-search {
+          max-width: none; /* let search bar fill available space */
+        }
+
+        /* Hero */
+        .hero {
+          padding: 2rem 1rem 1.5rem;
+          min-height: auto;
+        }
+        .hero-content {
+          flex-direction: column; /* stack cover above text */
+          align-items: flex-start;
+          gap: 1rem;
+        }
+        .hero-cover {
+          width: 100px;
+          height: 145px;
+        }
+        .hero-title {
+          font-size: 2.2rem;
+        }
+
+        /* Sections */
+        .section {
+          padding: 1.5rem 1rem;
+        }
+        .section-title {
+          font-size: 1.3rem;
+        }
+      }
     </style>
   </head>
 
@@ -379,6 +468,32 @@
 
     <script>
       const API = "http://localhost:8000";
+
+      // ── Skeletons ─────────────────────────────────────────
+      function createSkeletonCard() {
+        const card = document.createElement("div");
+        card.className = "skeleton-card";
+        card.innerHTML = `
+    <div class="skeleton-img"></div>
+    <div class="skeleton-line"></div>
+    <div class="skeleton-line short"></div>
+  `;
+        return card;
+      }
+
+      function showSkeletons(containerId, n = 10) {
+        const container = document.getElementById(containerId);
+        for (let i = 0; i < n; i++) {
+          container.appendChild(createSkeletonCard());
+        }
+      }
+
+      function removeSkeletons(containerId) {
+        document
+          .getElementById(containerId)
+          .querySelectorAll(".skeleton-card")
+          .forEach((el) => el.remove());
+      }
 
       // ── Hero ──────────────────────────────────────────────
       async function loadHero() {
@@ -447,11 +562,13 @@
       }
 
       async function loadTrending(type, containerId) {
+        showSkeletons(containerId, 10);
         const res = await fetch(
           `${API}/media/?type=${type}&page=1&page_size=20`,
         );
         const items = await res.json();
         const container = document.getElementById(containerId);
+        removeSkeletons(containerId);
         items.forEach((media) => {
           const card = createCard(media);
           container.appendChild(card);

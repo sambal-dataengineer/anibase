@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Browse — AniBase</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
       href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap"
@@ -355,6 +356,138 @@
         color: var(--text-dim);
         border-top: 1px solid var(--border);
       }
+
+      /* ── Skeletons ── */
+      .skeleton-card {
+        pointer-events: none;
+      }
+      .skeleton-img {
+        width: 100%;
+        aspect-ratio: 3 / 4;
+        border-radius: var(--radius);
+        background: var(--bg-card);
+        overflow: hidden;
+        position: relative;
+      }
+      .skeleton-line {
+        height: 0.75rem;
+        border-radius: 4px;
+        background: var(--bg-card);
+        margin-top: 0.5rem;
+        overflow: hidden;
+        position: relative;
+      }
+      .skeleton-line.short {
+        width: 55%;
+      }
+      .skeleton-img::after,
+      .skeleton-line::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          90deg,
+          transparent 0%,
+          rgba(255, 255, 255, 0.06) 50%,
+          transparent 100%
+        );
+        animation: shimmer 1.4s infinite;
+      }
+      @keyframes shimmer {
+        0% {
+          transform: translateX(-100%);
+        }
+        100% {
+          transform: translateX(100%);
+        }
+      }
+
+      /* ── Mobile ── */
+      @media (max-width: 768px) {
+        /* Navbar */
+        nav {
+          padding: 0 1rem;
+          gap: 1rem;
+        }
+        .nav-links {
+          display: none;
+        }
+        .nav-search {
+          max-width: none;
+        }
+
+        /* Stack sidebar above main instead of side by side */
+        .page-layout {
+          flex-direction: column;
+        }
+
+        /* Sidebar becomes a horizontal filter bar */
+        .sidebar {
+          width: 100%;
+          height: auto;
+          position: static; /* no longer sticky */
+          border-right: none;
+          border-bottom: 1px solid var(--border);
+          padding: 1rem;
+          display: flex;
+          flex-direction: row;
+          flex-wrap: nowrap;
+          align-items: center;
+          gap: 1rem;
+          overflow-x: auto;
+        }
+
+        /* Hide the TYPE/GENRE labels on mobile — no space */
+        .filter-label {
+          display: none;
+        }
+
+        /* Type buttons sit in a horizontal row */
+        .type-buttons {
+          flex-direction: row;
+          flex-shrink: 0;
+          gap: 0.4rem;
+        }
+        .type-btn {
+          width: auto;
+          white-space: nowrap;
+          padding: 0.35rem 0.85rem;
+          font-size: 0.78rem;
+        }
+
+        /* Divider between type and genre */
+        .type-buttons::after {
+          content: "";
+          width: 1px;
+          height: 24px;
+          background: var(--border);
+          flex-shrink: 0;
+        }
+
+        /* Genre list sits in a horizontal row */
+        .genre-list {
+          flex-direction: row;
+          flex-shrink: 0;
+          gap: 0.4rem;
+        }
+        .genre-btn {
+          width: auto;
+          white-space: nowrap;
+          padding: 0.35rem 0.85rem;
+          font-size: 0.75rem;
+        }
+
+        /* Main area */
+        .main {
+          padding: 1rem;
+        }
+
+        /* Grid — tighter on mobile */
+        .results-grid {
+          grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+          gap: 1rem;
+        }
+      }
     </style>
   </head>
 
@@ -450,6 +583,30 @@
       const emptySubtext = document.getElementById("emptySubtext");
       const filterPill = document.getElementById("activeFilterPill");
 
+      // ── Skeletons ─────────────────────────────────────────
+      function createSkeletonCard() {
+        const card = document.createElement("div");
+        card.className = "skeleton-card";
+        card.innerHTML = `
+          <div class="skeleton-img"></div>
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line short"></div>
+        `;
+        return card;
+      }
+
+      function showSkeletons(n = 20) {
+        for (let i = 0; i < n; i++) {
+          resultsGrid.insertBefore(createSkeletonCard(), sentinelEl);
+        }
+      }
+
+      function removeSkeletons() {
+        resultsGrid
+          .querySelectorAll(".skeleton-card")
+          .forEach((el) => el.remove());
+      }
+
       // ── Load genres into sidebar ──────────────────────────
       /*
         We call /media/genres once on page load.
@@ -464,15 +621,13 @@
           const btn = document.createElement("button");
           btn.className = "genre-btn";
           btn.textContent = g.name;
-          btn.dataset.genre = g.name; // store genre name on the element
+          btn.dataset.genre = g.name;
 
           btn.addEventListener("click", () => {
-            // If already active, clicking again clears the genre filter
             if (currentGenre === g.name) {
               currentGenre = "";
               btn.classList.remove("active");
             } else {
-              // Deactivate all genre buttons, activate this one
               document
                 .querySelectorAll(".genre-btn")
                 .forEach((b) => b.classList.remove("active"));
@@ -484,6 +639,13 @@
 
           genreList.appendChild(btn);
         });
+
+        // ✅ Restore genre highlight AFTER buttons exist in the DOM
+        if (initialGenre) {
+          document.querySelectorAll(".genre-btn").forEach((btn) => {
+            btn.classList.toggle("active", btn.dataset.genre === initialGenre);
+          });
+        }
       }
 
       // ── Type button click handlers ─────────────────────────
@@ -510,6 +672,18 @@
         cards.forEach((c) => c.remove());
         emptyState.classList.remove("visible");
 
+        // ✅ Sync URL with current filter state so refresh restores correctly
+        const params = new URLSearchParams();
+        if (currentQuery) params.set("q", currentQuery);
+        if (currentType) params.set("type", currentType);
+        if (currentGenre) params.set("genre", currentGenre);
+        const qs = params.toString();
+        history.replaceState(
+          null,
+          "",
+          qs ? `/browse.html?${qs}` : "/browse.html",
+        );
+
         updateFilterPill();
         fetchResults();
       }
@@ -532,6 +706,7 @@
 
         isLoading = true;
         spinner.classList.add("visible");
+        if (currentPage === 1) showSkeletons(20);
 
         // Build URL with active filters
         // encodeURIComponent handles genres with spaces e.g. "Slice of Life"
@@ -578,6 +753,7 @@
         } finally {
           isLoading = false;
           spinner.classList.remove("visible");
+          removeSkeletons();
         }
       }
 
@@ -677,6 +853,18 @@
       const initialQuery = urlParams.get("q") || "";
       const initialType = urlParams.get("type") || "";
       const initialGenre = urlParams.get("genre") || "";
+
+      // Restore type button highlight
+      if (initialType) {
+        document.querySelectorAll(".type-btn").forEach((btn) => {
+          btn.classList.toggle("active", btn.dataset.type === initialType);
+        });
+      } else {
+        // Default: highlight "All"
+        document
+          .querySelector('.type-btn[data-type=""]')
+          ?.classList.add("active");
+      }
 
       if (initialQuery) {
         currentQuery = initialQuery;

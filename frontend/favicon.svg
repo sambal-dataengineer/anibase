@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="6" fill="#18181b"/>
+  <rect x="0" y="0" width="6" height="32" rx="3" fill="#E85D04"/>
+  <rect x="0" y="0" width="3" height="32" fill="#E85D04"/>
+  <text
+    x="19" y="23"
+    text-anchor="middle"
+    font-family="'Bebas Neue', sans-serif"
+    font-size="22"
+    fill="white"
+    font-weight="700"
+  >A</text>
+</svg>

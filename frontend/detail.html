@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AniBase</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
       href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap"
@@ -466,6 +467,149 @@
         color: var(--text-dim);
         border-top: 1px solid var(--border);
       }
+
+      /* ── Skeletons ── */
+      .skeleton-pulse {
+        background: var(--bg-card);
+        overflow: hidden;
+        position: relative;
+      }
+      .skeleton-pulse::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          90deg,
+          transparent 0%,
+          rgba(255, 255, 255, 0.06) 50%,
+          transparent 100%
+        );
+        animation: shimmer 1.4s infinite;
+      }
+      @keyframes shimmer {
+        0% {
+          transform: translateX(-100%);
+        }
+        100% {
+          transform: translateX(100%);
+        }
+      }
+
+      /* Character skeleton — circular portrait */
+      .skeleton-char {
+        flex-shrink: 0;
+        width: 100px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .skeleton-char-img {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+      }
+      .skeleton-char-line {
+        height: 0.65rem;
+        width: 70%;
+        border-radius: 4px;
+      }
+      .skeleton-char-line.short {
+        width: 45%;
+      }
+
+      /* Relation skeleton — horizontal card */
+      .skeleton-relation {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 0.6rem 0.75rem;
+        min-width: 220px;
+        max-width: 320px;
+      }
+      .skeleton-relation-cover {
+        width: 40px;
+        height: 56px;
+        border-radius: 4px;
+        flex-shrink: 0;
+      }
+      .skeleton-relation-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        flex: 1;
+      }
+      .skeleton-relation-line {
+        height: 0.65rem;
+        border-radius: 4px;
+        width: 80%;
+      }
+      .skeleton-relation-line.short {
+        width: 50%;
+      }
+
+      /* ── Mobile ── */
+      @media (max-width: 768px) {
+        /* Navbar */
+        nav {
+          padding: 0 1rem;
+          gap: 1rem;
+        }
+        .nav-links {
+          display: none;
+        }
+        .nav-search {
+          max-width: none;
+        }
+
+        /* Hero — stack cover above info */
+        .hero {
+          flex-direction: column;
+          min-height: auto;
+        }
+        .hero-cover-panel {
+          width: 100%;
+          padding: 1.5rem 1.25rem 0;
+          background: none;
+          align-items: flex-start;
+        }
+        .hero-cover {
+          width: 120px;
+          height: 172px;
+        }
+        .hero-info-panel {
+          padding: 1rem 1.25rem 1.5rem;
+        }
+        .hero-title {
+          font-size: 2.2rem;
+        }
+
+        /* Info cards — allow wrapping on mobile */
+        .info-cards {
+          flex-wrap: wrap;
+        }
+        .info-card {
+          min-width: 90px;
+          flex: 1;
+        }
+
+        /* Sections */
+        .section {
+          padding: 1.5rem 1rem;
+        }
+
+        /* Relations — single column stack */
+        .relations-row {
+          flex-direction: column;
+        }
+        .relation-card {
+          max-width: 100%;
+          min-width: unset;
+        }
+      }
     </style>
   </head>
 
@@ -541,6 +685,51 @@
 
     <script>
       const API = "http://localhost:8000";
+
+      // ── Skeletons ─────────────────────────────────────────
+      function showCharSkeletons(n = 6) {
+        const row = document.getElementById("charactersRow");
+        for (let i = 0; i < n; i++) {
+          const el = document.createElement("div");
+          el.className = "skeleton-char";
+          el.innerHTML = `
+      <div class="skeleton-char-img skeleton-pulse"></div>
+      <div class="skeleton-char-line skeleton-pulse"></div>
+      <div class="skeleton-char-line short skeleton-pulse"></div>
+    `;
+          row.appendChild(el);
+        }
+      }
+
+      function showRelationSkeletons(n = 4) {
+        const row = document.getElementById("relationsRow");
+        for (let i = 0; i < n; i++) {
+          const el = document.createElement("div");
+          el.className = "skeleton-relation";
+          el.innerHTML = `
+      <div class="skeleton-relation-cover skeleton-pulse"></div>
+      <div class="skeleton-relation-info">
+        <div class="skeleton-relation-line skeleton-pulse"></div>
+        <div class="skeleton-relation-line short skeleton-pulse"></div>
+      </div>
+    `;
+          row.appendChild(el);
+        }
+      }
+
+      function removeCharSkeletons() {
+        document
+          .getElementById("charactersRow")
+          .querySelectorAll(".skeleton-char")
+          .forEach((el) => el.remove());
+      }
+
+      function removeRelationSkeletons() {
+        document
+          .getElementById("relationsRow")
+          .querySelectorAll(".skeleton-relation")
+          .forEach((el) => el.remove());
+      }
 
       // ── Read ?id= from the URL ─────────────────────────────
       // URLSearchParams parses the query string for us
@@ -680,8 +869,10 @@
 
         // ── CHARACTERS ───────────────────────────────────────
         // Separate endpoint: GET /media/{id}/characters
+        showCharSkeletons(6);
         const charRes = await fetch(`${API}/media/${mediaId}/characters`);
         const chars = await charRes.json();
+        removeCharSkeletons();
         const charRow = document.getElementById("charactersRow");
 
         if (chars.length === 0) {
@@ -703,8 +894,10 @@
 
         // ── RELATIONS ────────────────────────────────────────
         // Separate endpoint: GET /media/{id}/relations
+        showCharSkeletons(4);
         const relRes = await fetch(`${API}/media/${mediaId}/relations`);
         const rels = await relRes.json();
+        removeCharSkeletons();
         const relRow = document.getElementById("relationsRow");
 
         if (rels.length === 0) {
