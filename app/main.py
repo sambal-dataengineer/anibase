@@ -5,6 +5,9 @@ from fastapi.staticfiles import StaticFiles
 from app.api.routes import media as media_router
 from app.api.routes import characters as characters_router
 from app.api.routes import relations as relations_router
+from app.auth.routes import router as auth_router
+from app.api.routes.watchlist import router as watchlist_router
+from app.api.routes.lists import router as lists_router
 
 app = FastAPI(
     title="AniBase API",
@@ -22,6 +25,9 @@ app.add_middleware(
 app.include_router(media_router.router)
 app.include_router(characters_router.router)
 app.include_router(relations_router.router)
+app.include_router(auth_router)
+app.include_router(watchlist_router)
+app.include_router(lists_router)
 
 # ── 404 handler ───────────────────────────────────────────
 # Catches any request that doesn't match a route or static file
