@@ -345,6 +345,55 @@
           gap: 1rem;
         }
       }
+
+      .nav-auth {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-left: 1rem;
+      }
+
+      .nav-auth a.btn-login {
+        background: var(--accent);
+        color: #fff;
+        padding: 0.35rem 1rem;
+        border-radius: 5px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background 0.2s;
+      }
+      .nav-auth a.btn-login:hover {
+        background: #c94e03;
+      }
+
+      .nav-auth .nav-username {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text);
+        text-decoration: none;
+      }
+      .nav-auth .nav-username:hover {
+        color: var(--accent);
+      }
+
+      .nav-auth button.btn-logout {
+        background: none;
+        border: 1px solid var(--border);
+        color: var(--muted);
+        padding: 0.35rem 0.85rem;
+        border-radius: 5px;
+        font-family: "Inter", sans-serif;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition:
+          color 0.2s,
+          border-color 0.2s;
+      }
+      .nav-auth button.btn-logout:hover {
+        color: var(--text);
+        border-color: var(--text);
+      }
     </style>
   </head>
 
@@ -369,6 +418,7 @@
         <a href="/">Anime</a>
         <a href="/">Manga</a>
       </div>
+      <div class="nav-auth" id="navAuth"></div>
     </nav>
 
     <!-- ② SEARCH HEADER — shown once user has typed -->
@@ -581,6 +631,36 @@
         searchInput.value = initialQuery;
         startSearch(initialQuery);
       }
+
+      // ── Navbar auth state ──────────────────────────────────────────────────────
+      function initNavAuth() {
+        const token = localStorage.getItem("token");
+        const username = localStorage.getItem("username");
+        const navAuth = document.getElementById("navAuth");
+        if (!navAuth) return;
+
+        if (token && username) {
+          navAuth.innerHTML = `
+      <a href="/profile.html" class="nav-username">👤 ${username}</a>
+      <button class="btn-logout" onclick="logout()">Logout</button>
+    `;
+        } else {
+          const next = encodeURIComponent(
+            window.location.pathname + window.location.search,
+          );
+          navAuth.innerHTML = `
+      <a href="/login.html?next=${next}" class="btn-login">Login</a>
+    `;
+        }
+      }
+
+      function logout() {
+        localStorage.removeItem("token");
+        localStorage.removeItem("username");
+        window.location.reload();
+      }
+
+      initNavAuth();
     </script>
   </body>
 </html>

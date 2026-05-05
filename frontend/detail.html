@@ -610,6 +610,157 @@
           min-width: unset;
         }
       }
+
+      .nav-auth {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-left: 1rem;
+      }
+
+      .nav-auth a.btn-login {
+        background: var(--accent);
+        color: #fff;
+        padding: 0.35rem 1rem;
+        border-radius: 5px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background 0.2s;
+      }
+      .nav-auth a.btn-login:hover {
+        background: #c94e03;
+      }
+
+      .nav-auth .nav-username {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        text-decoration: none;
+      }
+      .nav-auth .nav-username:hover {
+        color: var(--accent);
+      }
+
+      .nav-auth button.btn-logout {
+        background: none;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        padding: 0.35rem 0.85rem;
+        border-radius: 5px;
+        font-family: "Inter", sans-serif;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition:
+          color 0.2s,
+          border-color 0.2s;
+      }
+      .nav-auth button.btn-logout:hover {
+        color: var(--text-primary);
+        border-color: var(--text-primary);
+      }
+
+      /* ── Watchlist Widget ── */
+      .watchlist-widget {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        margin-top: 0.25rem;
+      }
+
+      .btn-watchlist-add {
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        font-family: "Inter", sans-serif;
+        font-size: 0.875rem;
+        font-weight: 600;
+        padding: 0.6rem 1.25rem;
+        cursor: pointer;
+        transition: background 0.2s;
+        text-decoration: none;
+      }
+      .btn-watchlist-add:hover {
+        background: var(--accent-dim);
+      }
+
+      .btn-watchlist-added {
+        background: transparent;
+        color: var(--accent);
+        border: 1px solid var(--accent);
+        border-radius: 6px;
+        font-family: "Inter", sans-serif;
+        font-size: 0.875rem;
+        font-weight: 600;
+        padding: 0.6rem 1.25rem;
+        cursor: default;
+      }
+
+      .watchlist-status-select {
+        background: var(--bg-card);
+        color: var(--text-primary);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-family: "Inter", sans-serif;
+        font-size: 0.875rem;
+        padding: 0.55rem 0.85rem;
+        cursor: pointer;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      .watchlist-status-select:focus {
+        border-color: var(--accent);
+      }
+
+      .btn-watchlist-remove {
+        background: none;
+        color: var(--text-muted);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-family: "Inter", sans-serif;
+        font-size: 0.8rem;
+        padding: 0.55rem 0.85rem;
+        cursor: pointer;
+        transition:
+          color 0.2s,
+          border-color 0.2s;
+      }
+      .btn-watchlist-remove:hover {
+        color: #ef4444;
+        border-color: #ef4444;
+      }
+
+      /* Status picker — shown after clicking Add */
+      .watchlist-status-picker {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+      .watchlist-status-picker span {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+      }
+      .btn-status-option {
+        background: var(--bg-card);
+        color: var(--text-primary);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-family: "Inter", sans-serif;
+        font-size: 0.8rem;
+        font-weight: 500;
+        padding: 0.45rem 0.85rem;
+        cursor: pointer;
+        transition:
+          border-color 0.2s,
+          background 0.2s;
+      }
+      .btn-status-option:hover {
+        border-color: var(--accent);
+        background: var(--bg-card-hover);
+      }
     </style>
   </head>
 
@@ -618,13 +769,18 @@
     <nav>
       <a href="/" class="nav-logo">AniBase</a>
       <div class="nav-search">
-        <input type="text" placeholder="Search anime, manga..." />
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Search anime, manga..."
+        />
       </div>
       <div class="nav-links">
         <a href="/browse.html">Browse</a>
         <a href="/">Anime</a>
         <a href="/">Manga</a>
       </div>
+      <div class="nav-auth" id="navAuth"></div>
     </nav>
 
     <!-- ② HERO: split cover | info -->
@@ -647,6 +803,7 @@
             <span style="font-size: 0.8rem">/ 100</span>
           </div>
           <div class="hero-status" id="heroStatus"></div>
+          <div class="watchlist-widget" id="watchlistWidget"></div>
         </div>
       </div>
     </section>
@@ -961,6 +1118,159 @@
               window.location.href = `/browse.html?q=${encodeURIComponent(q)}`;
           }
         });
+
+      // ── Navbar auth state ──────────────────────────────────────────────────────
+      function initNavAuth() {
+        const token = localStorage.getItem("token");
+        const username = localStorage.getItem("username");
+        const navAuth = document.getElementById("navAuth");
+        if (!navAuth) return;
+
+        if (token && username) {
+          navAuth.innerHTML = `
+      <a href="/profile.html" class="nav-username">👤 ${username}</a>
+      <button class="btn-logout" onclick="logout()">Logout</button>
+    `;
+        } else {
+          const next = encodeURIComponent(
+            window.location.pathname + window.location.search,
+          );
+          navAuth.innerHTML = `
+      <a href="/login.html?next=${next}" class="btn-login">Login</a>
+    `;
+        }
+      }
+
+      function logout() {
+        localStorage.removeItem("token");
+        localStorage.removeItem("username");
+        window.location.reload();
+      }
+
+      initNavAuth();
+
+      // ── Watchlist Widget ───────────────────────────────────────────────────────
+      const STATUSES = ["Ongoing", "Shelf", "Completed", "Dropped"];
+
+      // Renders the widget based on current watchlist state
+      // currentStatus = null means not in watchlist
+      function renderWatchlistWidget(currentStatus) {
+        const widget = document.getElementById("watchlistWidget");
+        const token = localStorage.getItem("token");
+
+        // State 1 — logged out
+        if (!token) {
+          const next = encodeURIComponent(
+            window.location.pathname + window.location.search,
+          );
+          widget.innerHTML = `
+      <a href="/login.html?next=${next}" class="btn-watchlist-add">＋ Add to Watchlist</a>
+    `;
+          return;
+        }
+
+        // State 2 — logged in, not in watchlist → show Add button
+        if (!currentStatus) {
+          widget.innerHTML = `
+      <button class="btn-watchlist-add" onclick="showStatusPicker()">＋ Add to Watchlist</button>
+    `;
+          return;
+        }
+
+        // State 3 — logged in, in watchlist → show status dropdown + remove
+        widget.innerHTML = `
+    <button class="btn-watchlist-added">✓ In Watchlist</button>
+    <select class="watchlist-status-select" onchange="updateWatchlistStatus(this.value)">
+      ${STATUSES.map((s) => `<option value="${s}" ${s === currentStatus ? "selected" : ""}>${s}</option>`).join("")}
+    </select>
+    <button class="btn-watchlist-remove" onclick="removeFromWatchlist()">Remove</button>
+  `;
+      }
+
+      // Shows the status picker inline (Option B flow)
+      function showStatusPicker() {
+        const widget = document.getElementById("watchlistWidget");
+        widget.innerHTML = `
+    <div class="watchlist-status-picker">
+      <span>Add as:</span>
+      ${STATUSES.map(
+        (s) => `
+        <button class="btn-status-option" onclick="addToWatchlist('${s}')">${s}</button>
+      `,
+      ).join("")}
+    </div>
+  `;
+      }
+
+      // POST /watchlist/ — add with chosen status
+      async function addToWatchlist(status) {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`${API}/watchlist/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ media_id: parseInt(mediaId), status }),
+        });
+        if (res.ok) {
+          renderWatchlistWidget(status);
+        }
+      }
+
+      // PATCH /watchlist/{media_id} — change status
+      async function updateWatchlistStatus(status) {
+        const token = localStorage.getItem("token");
+        await fetch(`${API}/watchlist/${mediaId}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status }),
+        });
+      }
+
+      // DELETE /watchlist/{media_id} — remove
+      async function removeFromWatchlist() {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`${API}/watchlist/${mediaId}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          renderWatchlistWidget(null);
+        }
+      }
+
+      // On page load — check if this media is already in user's watchlist
+      async function initWatchlistWidget() {
+        const token = localStorage.getItem("token");
+
+        // Not logged in — render immediately in logged-out state
+        if (!token) {
+          renderWatchlistWidget(null);
+          return;
+        }
+
+        // Logged in — fetch watchlist and check if this mediaId is in it
+        const res = await fetch(`${API}/watchlist/`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!res.ok) {
+          // Token expired or invalid — treat as logged out
+          renderWatchlistWidget(null);
+          return;
+        }
+
+        const watchlist = await res.json();
+        // Find this media in the watchlist array
+        const entry = watchlist.find((w) => w.media_id === parseInt(mediaId));
+        renderWatchlistWidget(entry ? entry.status : null);
+      }
+
+      initWatchlistWidget();
     </script>
   </body>
 </html>

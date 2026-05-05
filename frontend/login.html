@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AniBase — Login</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0f0f11;
+        --surface: #18181b;
+        --border: #2a2a2e;
+        --accent: #e85d04;
+        --accent-dim: #a03e00;
+        --text: #e4e4e7;
+        --muted: #71717a;
+        --error: #ef4444;
+        --success: #22c55e;
+        --input-bg: #111113;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Inter", sans-serif;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* ── Navbar ── */
+      nav {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: rgba(15, 15, 17, 0.92);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        padding: 0 2rem;
+        height: 60px;
+        gap: 2rem;
+      }
+      .logo {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.8rem;
+        color: var(--accent);
+        text-decoration: none;
+        letter-spacing: 1px;
+      }
+      .nav-links {
+        display: flex;
+        gap: 1.5rem;
+        margin-left: auto;
+      }
+      .nav-links a {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: color 0.2s;
+      }
+      .nav-links a:hover {
+        color: var(--text);
+      }
+
+      /* ── Page layout ── */
+      main {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 1rem;
+      }
+
+      /* ── Card ── */
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        width: 100%;
+        max-width: 420px;
+        overflow: hidden;
+      }
+
+      /* ── Tab strip ── */
+      .tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        border-bottom: 1px solid var(--border);
+      }
+      .tab-btn {
+        background: none;
+        border: none;
+        color: var(--muted);
+        font-family: "Inter", sans-serif;
+        font-size: 0.9rem;
+        font-weight: 600;
+        padding: 1rem;
+        cursor: pointer;
+        position: relative;
+        transition: color 0.2s;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+      }
+      .tab-btn::after {
+        content: "";
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--accent);
+        transform: scaleX(0);
+        transition: transform 0.2s;
+      }
+      .tab-btn.active {
+        color: var(--text);
+      }
+      .tab-btn.active::after {
+        transform: scaleX(1);
+      }
+      .tab-btn:hover:not(.active) {
+        color: var(--text);
+      }
+
+      /* ── Forms ── */
+      .form-panel {
+        padding: 2rem;
+        display: none;
+        flex-direction: column;
+        gap: 1.25rem;
+      }
+      .form-panel.active {
+        display: flex;
+      }
+
+      .form-title {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.6rem;
+        letter-spacing: 1px;
+        color: var(--text);
+        line-height: 1;
+      }
+      .form-sub {
+        font-size: 0.82rem;
+        color: var(--muted);
+        margin-top: 0.25rem;
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+      }
+      .field label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--muted);
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+      .field input {
+        background: var(--input-bg);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text);
+        font-family: "Inter", sans-serif;
+        font-size: 0.95rem;
+        padding: 0.65rem 0.85rem;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      .field input:focus {
+        border-color: var(--accent);
+      }
+      .field input::placeholder {
+        color: var(--muted);
+        opacity: 0.6;
+      }
+
+      /* Error + success banners */
+      .msg {
+        font-size: 0.85rem;
+        padding: 0.65rem 0.85rem;
+        border-radius: 6px;
+        display: none;
+      }
+      .msg.error {
+        background: rgba(239, 68, 68, 0.12);
+        color: var(--error);
+        border: 1px solid rgba(239, 68, 68, 0.25);
+      }
+      .msg.success {
+        background: rgba(34, 197, 94, 0.12);
+        color: var(--success);
+        border: 1px solid rgba(34, 197, 94, 0.25);
+      }
+      .msg.visible {
+        display: block;
+      }
+
+      /* Submit button */
+      .btn-submit {
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        font-family: "Inter", sans-serif;
+        font-size: 0.95rem;
+        font-weight: 600;
+        padding: 0.75rem;
+        cursor: pointer;
+        transition:
+          background 0.2s,
+          opacity 0.2s;
+        margin-top: 0.25rem;
+      }
+      .btn-submit:hover {
+        background: #c94e03;
+      }
+      .btn-submit:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      /* Switch link */
+      .switch-link {
+        text-align: center;
+        font-size: 0.82rem;
+        color: var(--muted);
+      }
+      .switch-link span {
+        color: var(--accent);
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .switch-link span:hover {
+        text-decoration: underline;
+      }
+
+      /* ── Footer ── */
+      footer {
+        text-align: center;
+        padding: 1.5rem;
+        font-size: 0.8rem;
+        color: var(--muted);
+        border-top: 1px solid var(--border);
+      }
+
+      @media (max-width: 480px) {
+        nav {
+          padding: 0 1rem;
+        }
+        .form-panel {
+          padding: 1.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav>
+      <a href="/" class="logo">AniBase</a>
+      <div class="nav-links">
+        <a href="/browse.html">Browse</a>
+        <a href="/browse.html?type=ANIME">Anime</a>
+        <a href="/browse.html?type=MANGA">Manga</a>
+      </div>
+    </nav>
+
+    <main>
+      <div class="card">
+        <!-- Tab strip -->
+        <div class="tabs">
+          <button
+            class="tab-btn active"
+            id="tab-login"
+            onclick="switchTab('login')"
+          >
+            Login
+          </button>
+          <button class="tab-btn" id="tab-signup" onclick="switchTab('signup')">
+            Sign Up
+          </button>
+        </div>
+
+        <!-- Login panel -->
+        <div class="form-panel active" id="panel-login">
+          <div>
+            <div class="form-title">Welcome back</div>
+            <div class="form-sub">Sign in to your AniBase account</div>
+          </div>
+
+          <div class="msg error" id="login-error"></div>
+          <div class="msg success" id="login-success"></div>
+
+          <div class="field">
+            <label for="login-email">Email</label>
+            <input
+              type="email"
+              id="login-email"
+              placeholder="you@example.com"
+              autocomplete="email"
+            />
+          </div>
+          <div class="field">
+            <label for="login-password">Password</label>
+            <input
+              type="password"
+              id="login-password"
+              placeholder="••••••••"
+              autocomplete="current-password"
+            />
+          </div>
+
+          <button class="btn-submit" id="login-btn" onclick="handleLogin()">
+            Sign In
+          </button>
+
+          <div class="switch-link">
+            Don't have an account?
+            <span onclick="switchTab('signup')">Sign up</span>
+          </div>
+        </div>
+
+        <!-- Sign Up panel -->
+        <div class="form-panel" id="panel-signup">
+          <div>
+            <div class="form-title">Create account</div>
+            <div class="form-sub">Join AniBase and track your watchlist</div>
+          </div>
+
+          <div class="msg error" id="signup-error"></div>
+          <div class="msg success" id="signup-success"></div>
+
+          <div class="field">
+            <label for="signup-username">Username</label>
+            <input
+              type="text"
+              id="signup-username"
+              placeholder="yourname"
+              autocomplete="username"
+            />
+          </div>
+          <div class="field">
+            <label for="signup-email">Email</label>
+            <input
+              type="email"
+              id="signup-email"
+              placeholder="you@example.com"
+              autocomplete="email"
+            />
+          </div>
+          <div class="field">
+            <label for="signup-password">Password</label>
+            <input
+              type="password"
+              id="signup-password"
+              placeholder="••••••••"
+              autocomplete="new-password"
+            />
+          </div>
+
+          <button class="btn-submit" id="signup-btn" onclick="handleSignup()">
+            Create Account
+          </button>
+
+          <div class="switch-link">
+            Already have an account?
+            <span onclick="switchTab('login')">Sign in</span>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>© 2025 AniBase — Anime & Manga Discovery</footer>
+
+    <script>
+      const API = "http://localhost:8000";
+
+      // ── Where to redirect after login ──────────────────────────────────────
+      // Other pages will link here as: /login.html?next=/detail.html?id=123
+      // We read ?next= and go there after success.
+      function getRedirectTarget() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get("next") || "/";
+      }
+
+      // ── Tab switching ──────────────────────────────────────────────────────
+      function switchTab(tab) {
+        document
+          .getElementById("tab-login")
+          .classList.toggle("active", tab === "login");
+        document
+          .getElementById("tab-signup")
+          .classList.toggle("active", tab === "signup");
+        document
+          .getElementById("panel-login")
+          .classList.toggle("active", tab === "login");
+        document
+          .getElementById("panel-signup")
+          .classList.toggle("active", tab === "signup");
+        clearMessages();
+      }
+
+      function clearMessages() {
+        document.querySelectorAll(".msg").forEach((el) => {
+          el.classList.remove("visible");
+          el.textContent = "";
+        });
+      }
+
+      function showMsg(id, text) {
+        const el = document.getElementById(id);
+        el.textContent = text;
+        el.classList.add("visible");
+      }
+
+      // ── Login ──────────────────────────────────────────────────────────────
+      async function handleLogin() {
+        clearMessages();
+        const email = document.getElementById("login-email").value.trim();
+        const password = document.getElementById("login-password").value;
+
+        if (!email || !password) {
+          showMsg("login-error", "Please fill in all fields.");
+          return;
+        }
+
+        const btn = document.getElementById("login-btn");
+        btn.disabled = true;
+        btn.textContent = "Signing in…";
+
+        try {
+          const res = await fetch(`${API}/auth/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            // FastAPI validation errors come as data.detail (string or array)
+            const msg =
+              typeof data.detail === "string"
+                ? data.detail
+                : "Invalid email or password.";
+            showMsg("login-error", msg);
+            return;
+          }
+
+          // ✅ Success — store token + username, redirect back
+          localStorage.setItem("token", data.access_token);
+          localStorage.setItem("username", data.username);
+
+          showMsg(
+            "login-success",
+            `Welcome back, ${data.username}! Redirecting…`,
+          );
+          setTimeout(() => {
+            window.location.href = getRedirectTarget();
+          }, 800);
+        } catch (err) {
+          showMsg("login-error", "Could not connect to server. Is it running?");
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Sign In";
+        }
+      }
+
+      // ── Sign Up ────────────────────────────────────────────────────────────
+      async function handleSignup() {
+        clearMessages();
+        const username = document
+          .getElementById("signup-username")
+          .value.trim();
+        const email = document.getElementById("signup-email").value.trim();
+        const password = document.getElementById("signup-password").value;
+
+        if (!username || !email || !password) {
+          showMsg("signup-error", "Please fill in all fields.");
+          return;
+        }
+        if (password.length < 6) {
+          showMsg("signup-error", "Password must be at least 6 characters.");
+          return;
+        }
+
+        const btn = document.getElementById("signup-btn");
+        btn.disabled = true;
+        btn.textContent = "Creating account…";
+
+        try {
+          const res = await fetch(`${API}/auth/register`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, email, password }),
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            const msg =
+              typeof data.detail === "string"
+                ? data.detail
+                : "Registration failed. Try a different email or username.";
+            showMsg("signup-error", msg);
+            return;
+          }
+
+          // ✅ Success — store token + username, redirect back
+          localStorage.setItem("token", data.access_token);
+          localStorage.setItem("username", data.username);
+
+          showMsg(
+            "signup-success",
+            `Account created! Welcome, ${data.username}! Redirecting…`,
+          );
+          setTimeout(() => {
+            window.location.href = getRedirectTarget();
+          }, 800);
+        } catch (err) {
+          showMsg(
+            "signup-error",
+            "Could not connect to server. Is it running?",
+          );
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Create Account";
+        }
+      }
+
+      // ── Enter key support ──────────────────────────────────────────────────
+      document.addEventListener("keydown", (e) => {
+        if (e.key !== "Enter") return;
+        const loginActive = document
+          .getElementById("panel-login")
+          .classList.contains("active");
+        if (loginActive) handleLogin();
+        else handleSignup();
+      });
+
+      // ── If already logged in, skip this page ──────────────────────────────
+      if (localStorage.getItem("token")) {
+        window.location.href = getRedirectTarget();
+      }
+    </script>
+  </body>
+</html>
