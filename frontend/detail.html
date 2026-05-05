@@ -761,6 +761,39 @@
         border-color: var(--accent);
         background: var(--bg-card-hover);
       }
+
+      /* ── Links locked state ── */
+      .links-locked {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+      }
+      .links-locked-icon {
+        font-size: 1.2rem;
+      }
+      .links-locked-text {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+        flex: 1;
+      }
+      .links-locked-btn {
+        background: var(--accent);
+        color: #fff;
+        text-decoration: none;
+        padding: 0.45rem 1rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: background 0.2s;
+        white-space: nowrap;
+      }
+      .links-locked-btn:hover {
+        background: var(--accent-dim);
+      }
     </style>
   </head>
 
@@ -1083,21 +1116,31 @@
         }
 
         // ── STREAMING / READING LINKS ─────────────────────────
-        // Uses the main media object — links are already in the response
         const linksRow = document.getElementById("linksRow");
         const links = media.links || [];
+        const token = localStorage.getItem("token");
 
         if (links.length === 0) {
           linksRow.innerHTML = '<p class="empty">No links available.</p>';
+        } else if (!token) {
+          // Logged out — show locked state instead of links
+          const next = encodeURIComponent(
+            window.location.pathname + window.location.search,
+          );
+          linksRow.innerHTML = `
+            <div class="links-locked">
+              <span class="links-locked-icon">🔒</span>
+              <span class="links-locked-text">Login to view streaming and reading sources</span>
+              <a href="/login.html?next=${next}" class="links-locked-btn">Login</a>
+            </div>
+          `;
         } else {
           links.forEach((link) => {
             const btn = document.createElement("a");
             btn.href = link.url;
-            btn.target = "_blank"; // open in new tab
-            btn.rel = "noopener"; // security best practice for _blank
-            // Streaming links get the orange accent style
+            btn.target = "_blank";
+            btn.rel = "noopener";
             btn.className = `link-btn ${link.type === "STREAMING" ? "streaming" : ""}`;
-            // Arrow shows it's an external link
             btn.textContent = `${link.site} ↗`;
             linksRow.appendChild(btn);
           });
