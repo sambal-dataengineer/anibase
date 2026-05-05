@@ -23,6 +23,8 @@ class WatchlistResponse(BaseModel):
     title: str
     cover_image_url: Optional[str]
     status: Optional[str]
+    media_type: Optional[str]
+    media_format: Optional[str]
 
     class Config:
         from_attributes = True
@@ -46,7 +48,9 @@ def get_watchlist(
             media_id=entry.media_id,
             title=entry.media.title_romaji or entry.media.title_english,
             cover_image_url=entry.media.cover_image_url,
-            status=entry.status
+            status=entry.status,
+            media_type=entry.media.type,
+        media_format=entry.media.format
         )
         for entry in entries
     ]
