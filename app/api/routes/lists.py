@@ -24,9 +24,14 @@ class ListItemResponse(BaseModel):
     media_id: int
     title: str
     cover_image_url: Optional[str]
+    media_type: Optional[str]    # ← add
+    media_format: Optional[str]  # ← add
 
     class Config:
         from_attributes = True
+
+class ListItemAddRequest(BaseModel):
+    media_id: int
 
 # ── Endpoints ───────────────────────────────────────────────────
 
@@ -88,7 +93,9 @@ def get_list_items(
         ListItemResponse(
             media_id=item.media_id,
             title=item.media.title_romaji or item.media.title_english,
-            cover_image_url=item.media.cover_image_url
+            cover_image_url=item.media.cover_image_url,
+            media_type=item.media.type,     # ← add
+            media_format=item.media.format  # ← add
         )
         for item in user_list.list_items
     ]
@@ -97,7 +104,7 @@ def get_list_items(
 @router.post("/{list_id}/items", status_code=status.HTTP_201_CREATED)
 def add_item_to_list(
     list_id: int,
-    media_id: int,
+    payload: ListItemAddRequest,          # ← change this
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -108,18 +115,18 @@ def add_item_to_list(
     if not user_list:
         raise HTTPException(status_code=404, detail="List not found")
 
-    media = db.query(Media).filter(Media.id == media_id).first()
+    media = db.query(Media).filter(Media.id == payload.media_id).first()  # ← update
     if not media:
         raise HTTPException(status_code=404, detail="Media not found")
 
     existing = db.query(ListItem).filter(
         ListItem.list_id == list_id,
-        ListItem.media_id == media_id
+        ListItem.media_id == payload.media_id                             # ← update
     ).first()
     if existing:
         raise HTTPException(status_code=400, detail="Already in list")
 
-    item = ListItem(list_id=list_id, media_id=media_id)
+    item = ListItem(list_id=list_id, media_id=payload.media_id)          # ← update
     db.add(item)
     db.commit()
     return {"message": "Added to list"}
