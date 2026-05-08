@@ -112,156 +112,6 @@
         letter-spacing: 0.04em;
       }
 
-      /* ── Main tabs (Watchlist / My Lists) ── */
-      .main-tabs {
-        display: flex;
-        gap: 0;
-        border-bottom: 1px solid var(--border);
-        margin-bottom: 1.75rem;
-      }
-      .main-tab {
-        padding: 0.6rem 1.5rem;
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: var(--muted);
-        background: transparent;
-        border: none;
-        border-bottom: 2px solid transparent;
-        cursor: pointer;
-        transition: all 0.2s;
-        margin-bottom: -1px;
-      }
-      .main-tab:hover {
-        color: var(--text);
-      }
-      .main-tab.active {
-        color: var(--accent);
-        border-bottom-color: var(--accent);
-      }
-
-      /* ── Tab panels ── */
-      .tab-panel {
-        display: none;
-      }
-      .tab-panel.active {
-        display: block;
-      }
-
-      /* ── Status tabs (watchlist) ── */
-      .status-tabs {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-        margin-bottom: 1.5rem;
-      }
-      .status-tab {
-        padding: 0.4rem 1.1rem;
-        border-radius: 20px;
-        border: 1px solid var(--border);
-        background: transparent;
-        color: var(--muted);
-        font-size: 0.8rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.15s;
-      }
-      .status-tab:hover {
-        color: var(--text);
-        border-color: var(--muted);
-      }
-      .status-tab.active {
-        background: var(--accent);
-        border-color: var(--accent);
-        color: white;
-      }
-
-      /* ── Watchlist rows ── */
-      .wl-list {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-      }
-      .wl-row {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        padding: 0.75rem 1rem;
-        transition: border-color 0.2s;
-      }
-      .wl-row:hover {
-        border-color: #3f3f46;
-      }
-      .wl-cover {
-        width: 40px;
-        height: 56px;
-        border-radius: 4px;
-        object-fit: cover;
-        flex-shrink: 0;
-        background: var(--border);
-      }
-      .wl-info {
-        flex: 1;
-        min-width: 0;
-      }
-      .wl-title {
-        font-size: 0.95rem;
-        font-weight: 600;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        text-decoration: none;
-        color: var(--text);
-      }
-      .wl-title:hover {
-        color: var(--accent);
-      }
-      .wl-meta {
-        font-size: 0.75rem;
-        color: var(--muted);
-        margin-top: 0.2rem;
-      }
-      .wl-actions {
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-        flex-shrink: 0;
-      }
-      .status-select {
-        background: var(--bg);
-        border: 1px solid var(--border);
-        border-radius: 6px;
-        color: var(--text);
-        font-size: 0.75rem;
-        padding: 0.3rem 0.6rem;
-        cursor: pointer;
-        outline: none;
-        transition: border-color 0.2s;
-      }
-      .status-select:focus {
-        border-color: var(--accent);
-      }
-      .remove-btn {
-        background: transparent;
-        border: 1px solid var(--border);
-        border-radius: 6px;
-        color: var(--muted);
-        width: 30px;
-        height: 30px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        font-size: 1rem;
-        transition: all 0.15s;
-      }
-      .remove-btn:hover {
-        border-color: #ef4444;
-        color: #ef4444;
-      }
-
       /* ── Type badge ── */
       .type-badge {
         display: inline-block;
@@ -560,11 +410,6 @@
         .nav-search {
           display: none;
         }
-        .wl-actions {
-          flex-direction: column;
-          align-items: flex-end;
-          gap: 0.4rem;
-        }
       }
     </style>
   </head>
@@ -591,27 +436,8 @@
         <h1>My Space</h1>
       </div>
 
-      <!-- Main tabs -->
-      <div class="main-tabs">
-        <button class="main-tab active" data-tab="watchlist">Watchlist</button>
-        <button class="main-tab" data-tab="mylists">My Lists</button>
-      </div>
-
-      <!-- Watchlist panel -->
-      <div class="tab-panel active" id="panel-watchlist">
-        <div class="status-tabs" id="status-tabs">
-          <button class="status-tab active" data-status="All">All</button>
-          <button class="status-tab" data-status="Ongoing">Ongoing</button>
-          <button class="status-tab" data-status="Shelf">Shelf</button>
-          <button class="status-tab" data-status="Completed">Completed</button>
-          <button class="status-tab" data-status="Dropped">Dropped</button>
-        </div>
-        <p class="section-subtitle" id="wl-count"></p>
-        <div class="wl-list" id="wl-container"></div>
-      </div>
-
       <!-- My Lists panel -->
-      <div class="tab-panel" id="panel-mylists">
+      <div id="panel-mylists">
         <div class="create-row">
           <input
             class="create-input"
@@ -631,10 +457,6 @@
       const API = "http://localhost:8000";
       const token = localStorage.getItem("anibase_token");
       if (!token) window.location.href = "/login.html?next=/myspace.html";
-
-      const STATUSES = ["Ongoing", "Shelf", "Completed", "Dropped"];
-      let allWatchlistItems = [];
-      let activeStatus = "All";
 
       // ── Nav search ──
       document
@@ -657,165 +479,6 @@
         }
       }
       updateNavAuth();
-
-      // ── Main tab switching ──
-      document.querySelectorAll(".main-tab").forEach((tab) => {
-        tab.addEventListener("click", () => {
-          document
-            .querySelectorAll(".main-tab")
-            .forEach((t) => t.classList.remove("active"));
-          document
-            .querySelectorAll(".tab-panel")
-            .forEach((p) => p.classList.remove("active"));
-          tab.classList.add("active");
-          document
-            .getElementById(`panel-${tab.dataset.tab}`)
-            .classList.add("active");
-        });
-      });
-
-      // ═══════════════════════════════════════
-      // WATCHLIST
-      // ═══════════════════════════════════════
-
-      function showWlSkeletons() {
-        document.getElementById("wl-container").innerHTML = Array(5)
-          .fill(
-            `
-        <div class="skeleton-row">
-          <div class="sk-cover"></div>
-          <div class="sk-lines">
-            <div class="sk-line"></div>
-            <div class="sk-line short"></div>
-          </div>
-        </div>`,
-          )
-          .join("");
-      }
-
-      function renderWatchlist() {
-        const container = document.getElementById("wl-container");
-        const countEl = document.getElementById("wl-count");
-        const filtered =
-          activeStatus === "All"
-            ? allWatchlistItems
-            : allWatchlistItems.filter((i) => i.status === activeStatus);
-
-        countEl.textContent = `${allWatchlistItems.length} title${allWatchlistItems.length !== 1 ? "s" : ""} total`;
-
-        if (filtered.length === 0) {
-          container.innerHTML = `
-          <div class="empty-state">
-            <div class="icon">📭</div>
-            <p>No titles with status <strong>${activeStatus}</strong> yet.</p>
-            <a href="/browse.html">Browse titles →</a>
-          </div>`;
-          return;
-        }
-        container.innerHTML = filtered.map(buildWlRow).join("");
-        attachWlListeners();
-      }
-
-      function buildWlRow(item) {
-        const type = item.media_type || "ANIME";
-        const badgeClass = type === "MANGA" ? "manga" : "anime";
-        const opts = STATUSES.map(
-          (s) =>
-            `<option value="${s}" ${item.status === s ? "selected" : ""}>${s}</option>`,
-        ).join("");
-        return `
-        <div class="wl-row" data-media-id="${item.media_id}">
-          <img class="wl-cover" src="${item.cover_image_url || ""}" alt=""
-            onerror="this.style.opacity='0'" />
-          <div class="wl-info">
-            <a class="wl-title" href="/detail.html?id=${item.media_id}">${item.title || "Unknown"}</a>
-            <div class="wl-meta">
-              <span class="type-badge ${badgeClass}">${type}</span>
-              ${item.media_format || ""}
-            </div>
-          </div>
-          <div class="wl-actions">
-            <select class="status-select" data-media-id="${item.media_id}">${opts}</select>
-            <button class="remove-btn" data-media-id="${item.media_id}" title="Remove">✕</button>
-          </div>
-        </div>`;
-      }
-
-      function attachWlListeners() {
-        document.querySelectorAll(".status-select").forEach((sel) => {
-          sel.addEventListener("change", async (e) => {
-            const mediaId = e.target.dataset.mediaId;
-            await patchWlStatus(mediaId, e.target.value);
-          });
-        });
-        document.querySelectorAll(".wl-list .remove-btn").forEach((btn) => {
-          btn.addEventListener("click", async (e) => {
-            await removeWlItem(e.currentTarget.dataset.mediaId);
-          });
-        });
-      }
-
-      async function patchWlStatus(mediaId, newStatus) {
-        try {
-          const res = await fetch(`${API}/watchlist/${mediaId}`, {
-            method: "PATCH",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ status: newStatus }),
-          });
-          if (!res.ok) throw new Error();
-          const item = allWatchlistItems.find((i) => i.media_id == mediaId);
-          if (item) item.status = newStatus;
-        } catch {
-          alert("Could not update status.");
-        }
-      }
-
-      async function removeWlItem(mediaId) {
-        try {
-          const res = await fetch(`${API}/watchlist/${mediaId}`, {
-            method: "DELETE",
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          if (!res.ok) throw new Error();
-          allWatchlistItems = allWatchlistItems.filter(
-            (i) => i.media_id != mediaId,
-          );
-          renderWatchlist();
-        } catch {
-          alert("Could not remove item.");
-        }
-      }
-
-      // Status tab switching
-      document.getElementById("status-tabs").addEventListener("click", (e) => {
-        const btn = e.target.closest(".status-tab");
-        if (!btn) return;
-        document
-          .querySelectorAll(".status-tab")
-          .forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-        activeStatus = btn.dataset.status;
-        renderWatchlist();
-      });
-
-      async function loadWatchlist() {
-        showWlSkeletons();
-        try {
-          const res = await fetch(`${API}/watchlist/`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          if (!res.ok) throw new Error();
-          allWatchlistItems = await res.json();
-          renderWatchlist();
-        } catch {
-          document.getElementById("wl-container").innerHTML = `
-          <div class="empty-state"><div class="icon">⚠️</div>
-          <p>Could not load watchlist. Please refresh.</p></div>`;
-        }
-      }
 
       // ═══════════════════════════════════════
       // MY LISTS
@@ -1068,7 +731,6 @@
       }
 
       // ── Boot ──
-      loadWatchlist();
       loadLists();
     </script>
   </body>
