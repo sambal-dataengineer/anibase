@@ -840,6 +840,102 @@
       .links-locked-btn:hover {
         background: var(--accent-dim);
       }
+      /* ── Rank Up Overlay ── */
+      #rankUpOverlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.88);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: overlayFadeIn 0.4s ease;
+      }
+      @keyframes overlayFadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      #rankUpBox {
+        background: #1a1a24;
+        border: 2px solid var(--accent);
+        border-radius: 24px;
+        padding: 4rem 5rem;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.2rem;
+        min-width: 360px;
+        max-width: 92vw;
+        min-height: 55vh;
+        justify-content: center;
+        box-shadow: 0 0 100px rgba(232, 93, 38, 0.35);
+        animation: boxPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      @keyframes boxPop {
+        from {
+          transform: scale(0.6);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      #rankUpEmoji {
+        font-size: 6rem;
+        animation: emojiBounce 0.7s ease infinite alternate;
+      }
+      @keyframes emojiBounce {
+        from {
+          transform: translateY(0);
+        }
+        to {
+          transform: translateY(-16px);
+        }
+      }
+      #rankUpTitle {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 5rem;
+        letter-spacing: 0.12em;
+        color: var(--accent);
+        text-shadow: 0 0 40px rgba(232, 93, 38, 0.7);
+        line-height: 1;
+      }
+      #rankUpName {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 3.2rem;
+        color: var(--text-primary);
+        letter-spacing: 0.06em;
+        line-height: 1;
+      }
+      #rankUpSub {
+        font-size: 1.05rem;
+        color: var(--text-muted);
+      }
+      #rankUpDismiss {
+        margin-top: 1rem;
+        background: var(--accent);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-family: "Inter", sans-serif;
+        font-size: 1.1rem;
+        font-weight: 700;
+        padding: 1rem 3rem;
+        cursor: pointer;
+        transition:
+          background 0.2s,
+          transform 0.1s;
+      }
+      #rankUpDismiss:hover {
+        background: var(--accent-dim);
+        transform: scale(1.05);
+      }
     </style>
   </head>
 
@@ -1502,6 +1598,95 @@
           alert("Could not create list.");
         }
       }
+      // ── Rank system ──
+      const RANKS = [
+        {
+          name: "Genin",
+          cls: "genin",
+          min: 0,
+          max: 10,
+          label: "🟤 Genin",
+          emoji: "🟤",
+        },
+        {
+          name: "Chunin",
+          cls: "chunin",
+          min: 10,
+          max: 50,
+          label: "🔵 Chunin",
+          emoji: "🔵",
+        },
+        {
+          name: "Jonin",
+          cls: "jonin",
+          min: 50,
+          max: 100,
+          label: "🟡 Jonin",
+          emoji: "🟡",
+        },
+        {
+          name: "Kage",
+          cls: "kage",
+          min: 100,
+          max: null,
+          label: "🔴 Kage",
+          emoji: "🔴",
+        },
+      ];
+
+      function getRankFromCount(items) {
+        for (let i = RANKS.length - 1; i >= 0; i--) {
+          if (items >= RANKS[i].min) return RANKS[i];
+        }
+        return RANKS[0];
+      }
+
+      async function getTotalUniqueItems() {
+        const token = localStorage.getItem("token");
+        try {
+          const listsRes = await fetch(`${API}/lists/`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (!listsRes.ok) return 0;
+          const lists = await listsRes.json();
+          const allItems = await Promise.all(
+            lists.map(async (list) => {
+              const res = await fetch(`${API}/lists/${list.id}/items`, {
+                headers: { Authorization: `Bearer ${token}` },
+              });
+              return res.ok ? await res.json() : [];
+            }),
+          );
+          const uniqueIds = new Set(allItems.flat().map((i) => i.media_id));
+          return uniqueIds.size;
+        } catch {
+          return 0;
+        }
+      }
+
+      async function checkRankUp() {
+        const total = await getTotalUniqueItems();
+        const newRank = getRankFromCount(total);
+        const storedRank = localStorage.getItem("rank");
+        const oldIdx = RANKS.findIndex((r) => r.name === storedRank);
+        const newIdx = RANKS.findIndex((r) => r.name === newRank.name);
+        localStorage.setItem("rank", newRank.name);
+        if (storedRank && newIdx > oldIdx) {
+          showRankUp(newRank, total);
+        }
+      }
+
+      function showRankUp(rank, total) {
+        document.getElementById("rankUpEmoji").textContent = rank.emoji;
+        document.getElementById("rankUpName").textContent = rank.name;
+        document.getElementById("rankUpSub").textContent =
+          `${total} unique titles in your universe`;
+        document.getElementById("rankUpOverlay").style.display = "flex";
+      }
+
+      function dismissRankUp() {
+        document.getElementById("rankUpOverlay").style.display = "none";
+      }
 
       renderAddButton();
 
@@ -1515,5 +1700,16 @@
         renderAddButton();
       });
     </script>
+    <div id="rankUpOverlay" style="display: none">
+      <div id="rankUpBox">
+        <div id="rankUpEmoji"></div>
+        <div id="rankUpTitle">RANK UP!</div>
+        <div id="rankUpName"></div>
+        <div id="rankUpSub"></div>
+        <button id="rankUpDismiss" onclick="dismissRankUp()">
+          Awesome! 🎉
+        </button>
+      </div>
+    </div>
   </body>
 </html>
