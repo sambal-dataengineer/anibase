@@ -1,0 +1,974 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AniBase — Profile</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ── Variables ── */
+      :root {
+        --bg: #0f0f13;
+        --surface: #18181b;
+        --surface2: #1f1f23;
+        --border: #2a2a2e;
+        --accent: #e85d04;
+        --accent2: #ff6b1a;
+        --text: #e4e4e7;
+        --muted: #71717a;
+        --success: #22c55e;
+        --danger: #ef4444;
+        --genin: #a16207;
+        --chunin: #1d4ed8;
+        --jonin: #a16207;
+        --kage: #dc2626;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Inter", sans-serif;
+        min-height: 100vh;
+      }
+
+      /* ── Navbar ── */
+      nav {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: rgba(15, 15, 19, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--border);
+        padding: 0 2rem;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        height: 60px;
+      }
+      .nav-logo {
+        font-family: "Bebas Neue", cursive;
+        font-size: 1.8rem;
+        color: var(--accent);
+        text-decoration: none;
+        letter-spacing: 1px;
+      }
+      .nav-search {
+        flex: 1;
+        max-width: 400px;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.4rem 1rem;
+        color: var(--text);
+        font-size: 0.9rem;
+        outline: none;
+      }
+      .nav-links {
+        margin-left: auto;
+        display: flex;
+        gap: 1.5rem;
+        align-items: center;
+      }
+      .nav-links a {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: color 0.2s;
+      }
+      .nav-links a:hover,
+      .nav-links a.active {
+        color: var(--text);
+      }
+
+      /* ── Page layout ── */
+      .page {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 2.5rem 1.5rem 4rem;
+      }
+
+      /* ── Profile Hero ── */
+      .profile-hero {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+      }
+      .avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Bebas Neue", cursive;
+        font-size: 2rem;
+        color: white;
+        flex-shrink: 0;
+      }
+      .profile-info h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+      }
+      .profile-info .email {
+        color: var(--muted);
+        font-size: 0.9rem;
+        margin-top: 0.2rem;
+      }
+      .profile-info .since {
+        color: var(--muted);
+        font-size: 0.85rem;
+        margin-top: 0.4rem;
+      }
+
+      /* ── Rank Card ── */
+      .rank-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.5rem 2rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+        overflow: hidden;
+      }
+      .rank-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+      .rank-badge {
+        font-family: "Bebas Neue", cursive;
+        font-size: 1.1rem;
+        padding: 0.3rem 1rem;
+        border-radius: 20px;
+        letter-spacing: 1px;
+      }
+      .rank-badge.genin {
+        background: #451a03;
+        color: #fb923c;
+        border: 1px solid #92400e;
+      }
+      .rank-badge.chunin {
+        background: #1e1b4b;
+        color: #818cf8;
+        border: 1px solid #3730a3;
+      }
+      .rank-badge.jonin {
+        background: #14532d;
+        color: #4ade80;
+        border: 1px solid #166534;
+      }
+      .rank-badge.kage {
+        background: #450a0a;
+        color: #f87171;
+        border: 1px solid #991b1b;
+      }
+      .rank-title {
+        font-size: 1rem;
+        color: var(--muted);
+      }
+      .rank-title span {
+        color: var(--text);
+        font-weight: 600;
+      }
+      .progress-wrap {
+        margin-top: 0.5rem;
+      }
+      .progress-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin-bottom: 0.4rem;
+      }
+      .progress-bar-bg {
+        background: var(--surface2);
+        border-radius: 99px;
+        height: 8px;
+        overflow: hidden;
+      }
+      .progress-bar-fill {
+        height: 100%;
+        border-radius: 99px;
+        background: linear-gradient(90deg, var(--accent), var(--accent2));
+        transition: width 1s ease;
+      }
+
+      /* ── Stats Strip ── */
+      .stats-strip {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+      .stat-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.2rem 1rem;
+        text-align: center;
+      }
+      .stat-value {
+        font-family: "Bebas Neue", cursive;
+        font-size: 1.8rem;
+        color: var(--accent);
+      }
+      .stat-label {
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-top: 0.2rem;
+      }
+
+      /* ── Forms ── */
+      .form-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.5rem 2rem;
+        margin-bottom: 1.5rem;
+      }
+      .form-card h2 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 1.2rem;
+        padding-bottom: 0.8rem;
+        border-bottom: 1px solid var(--border);
+      }
+      .form-group {
+        margin-bottom: 1rem;
+      }
+      .form-group label {
+        display: block;
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin-bottom: 0.4rem;
+      }
+      .form-group input {
+        width: 100%;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.6rem 1rem;
+        color: var(--text);
+        font-size: 0.9rem;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      .form-group input:focus {
+        border-color: var(--accent);
+      }
+      .btn {
+        padding: 0.6rem 1.4rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        transition: opacity 0.2s;
+      }
+      .btn:hover {
+        opacity: 0.85;
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: white;
+      }
+      .btn-danger {
+        background: var(--danger);
+        color: white;
+      }
+      .btn-ghost {
+        background: var(--surface2);
+        color: var(--text);
+        border: 1px solid var(--border);
+      }
+      .form-msg {
+        font-size: 0.85rem;
+        margin-top: 0.6rem;
+        min-height: 1.2em;
+      }
+      .form-msg.success {
+        color: var(--success);
+      }
+      .form-msg.error {
+        color: var(--danger);
+      }
+
+      /* ── Danger Zone ── */
+      .danger-zone {
+        background: var(--surface);
+        border: 1px solid #3f1212;
+        border-radius: 16px;
+        padding: 1.5rem 2rem;
+      }
+      .danger-zone h2 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--danger);
+        margin-bottom: 1.2rem;
+        padding-bottom: 0.8rem;
+        border-bottom: 1px solid #3f1212;
+      }
+      .danger-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+      .danger-row p {
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+
+      /* ── Toast ── */
+      .toast {
+        position: fixed;
+        bottom: 2rem;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--surface2);
+        border: 1px solid var(--accent);
+        color: var(--text);
+        padding: 0.8rem 1.5rem;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.4s ease;
+        z-index: 999;
+        white-space: nowrap;
+      }
+      .toast.show {
+        opacity: 1;
+      }
+
+      /* ── Rank-up celebration ── */
+      @keyframes rankGlow {
+        0% {
+          box-shadow: 0 0 0px var(--accent);
+          transform: scale(1);
+        }
+        50% {
+          box-shadow: 0 0 20px var(--accent);
+          transform: scale(1.12);
+        }
+        100% {
+          box-shadow: 0 0 0px var(--accent);
+          transform: scale(1);
+        }
+      }
+      .rank-badge.celebrate {
+        animation: rankGlow 0.8s ease;
+      }
+
+      /* ── Confirm overlay ── */
+      .overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 200;
+        align-items: center;
+        justify-content: center;
+      }
+      .overlay.show {
+        display: flex;
+      }
+      .confirm-box {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 2rem;
+        max-width: 380px;
+        width: 90%;
+        text-align: center;
+      }
+      .confirm-box h3 {
+        font-size: 1.1rem;
+        margin-bottom: 0.6rem;
+      }
+      .confirm-box p {
+        color: var(--muted);
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+      }
+      .confirm-btns {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+      }
+
+      /* ── Mobile ── */
+      @media (max-width: 768px) {
+        .stats-strip {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .profile-hero {
+          flex-direction: column;
+          text-align: center;
+        }
+        .danger-row {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        nav {
+          padding: 0 1rem;
+          gap: 1rem;
+        }
+        .nav-links {
+          gap: 1rem;
+        }
+        .nav-links a {
+          font-size: 0.8rem;
+        }
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .page,
+      nav {
+        visibility: hidden;
+      }
+
+      /* ── Rank Up Overlay ── */
+      #rankUpOverlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: overlayFadeIn 0.4s ease;
+      }
+      @keyframes overlayFadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      #rankUpBox {
+        background: var(--bg-card);
+        border: 2px solid var(--accent);
+        border-radius: 20px;
+        padding: 3rem 4rem;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        min-width: 340px;
+        max-width: 90vw;
+        min-height: 50vh;
+        justify-content: center;
+        box-shadow: 0 0 80px rgba(232, 93, 38, 0.3);
+        animation: boxPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      @keyframes boxPop {
+        from {
+          transform: scale(0.7);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      #rankUpEmoji {
+        font-size: 5rem;
+        animation: emojiBounce 0.6s ease infinite alternate;
+      }
+      @keyframes emojiBounce {
+        from {
+          transform: translateY(0);
+        }
+        to {
+          transform: translateY(-12px);
+        }
+      }
+      #rankUpTitle {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 4rem;
+        letter-spacing: 0.1em;
+        color: var(--accent);
+        text-shadow: 0 0 30px rgba(232, 93, 38, 0.6);
+      }
+      #rankUpName {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 2.8rem;
+        color: var(--text-primary);
+        letter-spacing: 0.05em;
+      }
+      #rankUpSub {
+        font-size: 1rem;
+        color: var(--text-muted);
+        margin-top: 0.25rem;
+      }
+      #rankUpDismiss {
+        margin-top: 1.5rem;
+        background: var(--accent);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-family: "Inter", sans-serif;
+        font-size: 1rem;
+        font-weight: 700;
+        padding: 0.85rem 2.5rem;
+        cursor: pointer;
+        transition:
+          background 0.2s,
+          transform 0.1s;
+      }
+      #rankUpDismiss:hover {
+        background: var(--accent-dim);
+        transform: scale(1.04);
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="pageLoader"
+      style="
+        position: fixed;
+        inset: 0;
+        background: #0f0f13;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+      "
+    >
+      <div
+        style="
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          border: 3px solid #2a2a2e;
+          border-top-color: #e85d04;
+          animation: spin 0.7s linear infinite;
+        "
+      ></div>
+    </div>
+
+    <!-- Navbar -->
+    <nav>
+      <a class="nav-logo" href="/">AniBase</a>
+      <input
+        class="nav-search"
+        type="text"
+        placeholder="Search anime or manga…"
+        id="navSearch"
+      />
+      <div class="nav-links">
+        <a href="/browse.html">Browse</a>
+        <a href="/myspace.html">My Space</a>
+        <a href="/profile.html" class="active">Profile</a>
+      </div>
+    </nav>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Delete confirm overlay -->
+    <div class="overlay" id="deleteOverlay">
+      <div class="confirm-box">
+        <h3>Delete Account</h3>
+        <p>
+          This will permanently delete your account, all lists, and saved items.
+          This cannot be undone.
+        </p>
+        <div class="confirm-btns">
+          <button class="btn btn-ghost" onclick="closeDeleteOverlay()">
+            Cancel
+          </button>
+          <button class="btn btn-danger" onclick="confirmDelete()">
+            Yes, Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Page -->
+    <div class="page">
+      <!-- Profile Hero -->
+      <div class="profile-hero">
+        <div class="avatar" id="avatarEl">?</div>
+        <div class="profile-info">
+          <h1 id="usernameDisplay">—</h1>
+          <div class="email" id="emailDisplay">—</div>
+          <div class="since" id="sinceDisplay">Member since —</div>
+        </div>
+      </div>
+
+      <!-- Rank Card -->
+      <div class="rank-card">
+        <div class="rank-header">
+          <span class="rank-badge" id="rankBadge">—</span>
+          <div class="rank-title">
+            Ninja Rank — <span id="rankName">—</span>
+          </div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-label">
+            <span id="progressLabel">0 titles listed</span>
+            <span id="progressNext"></span>
+          </div>
+          <div class="progress-bar-bg">
+            <div
+              class="progress-bar-fill"
+              id="progressFill"
+              style="width: 0%"
+            ></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-strip">
+        <div class="stat-card">
+          <div class="stat-value" id="statLists">—</div>
+          <div class="stat-label">Lists Created</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statItems">—</div>
+          <div class="stat-label">Titles in Universe</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statGenre">—</div>
+          <div class="stat-label">Favourite Genre</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statType">—</div>
+          <div class="stat-label">Favourite Type</div>
+        </div>
+      </div>
+
+      <!-- Edit Profile -->
+      <div class="form-card">
+        <h2>Edit Profile</h2>
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="editUsername" placeholder="New username" />
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="editEmail" placeholder="New email" />
+        </div>
+        <button class="btn btn-primary" onclick="saveProfile()">
+          Save Changes
+        </button>
+        <div class="form-msg" id="profileMsg"></div>
+      </div>
+
+      <!-- Change Password -->
+      <div class="form-card">
+        <h2>Change Password</h2>
+        <div class="form-group">
+          <label>Current Password</label>
+          <input
+            type="password"
+            id="currentPassword"
+            placeholder="Current password"
+          />
+        </div>
+        <div class="form-group">
+          <label>New Password</label>
+          <input type="password" id="newPassword" placeholder="New password" />
+        </div>
+        <button class="btn btn-primary" onclick="savePassword()">
+          Update Password
+        </button>
+        <div class="form-msg" id="passwordMsg"></div>
+      </div>
+
+      <!-- Danger Zone -->
+      <div class="danger-zone">
+        <h2>Danger Zone</h2>
+        <div class="danger-row">
+          <p>Sign out of your AniBase account on this device.</p>
+          <button class="btn btn-ghost" onclick="logout()">Logout</button>
+        </div>
+        <hr style="border-color: #3f1212; margin: 1.2rem 0" />
+        <div class="danger-row">
+          <p>Permanently delete your account and all your data.</p>
+          <button class="btn btn-danger" onclick="openDeleteOverlay()">
+            Delete Account
+          </button>
+        </div>
+      </div>
+
+      <div id="rankUpOverlay" style="display: none">
+        <div id="rankUpBox">
+          <div id="rankUpEmoji"></div>
+          <div id="rankUpTitle">RANK UP!</div>
+          <div id="rankUpName"></div>
+          <div id="rankUpSub"></div>
+          <button id="rankUpDismiss" onclick="dismissRankUp()">
+            Awesome! 🎉
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const BASE = "http://localhost:8000";
+      const API = BASE;
+
+      // ── Auth gate — check BEFORE anything renders ──
+      const token = localStorage.getItem("token");
+      if (!token) {
+        window.location.replace("/login.html?next=/profile.html");
+      }
+
+      // ── Rank system ──
+      const RANKS = [
+        { name: "Genin", cls: "genin", min: 0, max: 10, label: "🟤 Genin" },
+        { name: "Chunin", cls: "chunin", min: 10, max: 50, label: "🔵 Chunin" },
+        { name: "Jonin", cls: "jonin", min: 50, max: 100, label: "🟡 Jonin" },
+        { name: "Kage", cls: "kage", min: 100, max: null, label: "🔴 Kage" },
+      ];
+
+      function getRank(items) {
+        for (let i = RANKS.length - 1; i >= 0; i--) {
+          if (items >= RANKS[i].min) return RANKS[i];
+        }
+        return RANKS[0];
+      }
+
+      function getProgress(items) {
+        const rank = getRank(items);
+        if (!rank.max)
+          return { pct: 100, label: "Max Rank Achieved", next: "" };
+        const pct = Math.min(
+          ((items - rank.min) / (rank.max - rank.min)) * 100,
+          100,
+        );
+        return {
+          pct,
+          label: `${items} titles listed`,
+          next: `Next: ${rank.max}`,
+        };
+      }
+
+      function renderRank(items) {
+        const rank = getRank(items);
+        const prog = getProgress(items);
+        const badge = document.getElementById("rankBadge");
+
+        badge.textContent = rank.label;
+        badge.className = `rank-badge ${rank.cls}`;
+        document.getElementById("rankName").textContent = rank.name;
+        document.getElementById("progressLabel").textContent = prog.label;
+        document.getElementById("progressNext").textContent = prog.next;
+
+        setTimeout(() => {
+          document.getElementById("progressFill").style.width = prog.pct + "%";
+        }, 100);
+
+        // Rank-up check
+        const stored = localStorage.getItem("rank");
+        if (stored && stored !== rank.name) {
+          const oldIdx = RANKS.findIndex((r) => r.name === stored);
+          const newIdx = RANKS.findIndex((r) => r.name === rank.name);
+          if (newIdx > oldIdx) {
+            setTimeout(() => {
+              badge.classList.add("celebrate");
+              badge.addEventListener(
+                "animationend",
+                () => badge.classList.remove("celebrate"),
+                { once: true },
+              );
+              showToast(`🎉 You've been promoted to ${rank.name}!`);
+            }, 600);
+          }
+        }
+        localStorage.setItem("rank", rank.name);
+      }
+
+      // ── Load profile ──
+      async function loadProfile() {
+        try {
+          const res = await fetch(`${BASE}/users/me`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          if (res.status === 401) {
+            localStorage.removeItem("token");
+            localStorage.removeItem("username");
+            window.location.replace("/login.html?next=/profile.html");
+            return;
+          }
+
+          const d = await res.json();
+
+          // Hero
+          document.getElementById("avatarEl").textContent =
+            d.username[0].toUpperCase();
+          document.getElementById("usernameDisplay").textContent = d.username;
+          document.getElementById("emailDisplay").textContent = d.email;
+          document.getElementById("sinceDisplay").textContent =
+            `Member since ${d.created_at}`;
+
+          // Prefill edit form
+          document.getElementById("editUsername").value = d.username;
+          document.getElementById("editEmail").value = d.email;
+
+          // Stats
+          document.getElementById("statLists").textContent = d.total_lists;
+          document.getElementById("statItems").textContent = d.total_items;
+          document.getElementById("statGenre").textContent =
+            d.favourite_genre || "—";
+          document.getElementById("statType").textContent =
+            d.favourite_type || "—";
+
+          // Rank
+          renderRank(d.total_items);
+
+          // Reveal page — hide loader
+          document.getElementById("pageLoader").style.display = "none";
+          document.querySelector(".page").style.visibility = "visible";
+          document.querySelector("nav").style.visibility = "visible";
+        } catch (err) {
+          // Network error — still hide loader, show something
+          document.getElementById("pageLoader").style.display = "none";
+          showToast("Failed to load profile. Please try again.");
+        }
+      }
+
+      // ── Save profile ──
+      async function saveProfile() {
+        const username = document.getElementById("editUsername").value.trim();
+        const email = document.getElementById("editEmail").value.trim();
+        const msg = document.getElementById("profileMsg");
+
+        const res = await fetch(`${BASE}/users/me`, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username, email }),
+        });
+        const d = await res.json();
+
+        if (res.ok) {
+          msg.className = "form-msg success";
+          msg.textContent = "Profile updated!";
+          localStorage.setItem("username", username);
+          document.getElementById("usernameDisplay").textContent = username;
+          document.getElementById("avatarEl").textContent =
+            username[0].toUpperCase();
+          document.getElementById("emailDisplay").textContent = email;
+        } else {
+          msg.className = "form-msg error";
+          msg.textContent = d.detail || "Update failed.";
+        }
+      }
+
+      // ── Change password ──
+      async function savePassword() {
+        const current = document.getElementById("currentPassword").value;
+        const next = document.getElementById("newPassword").value;
+        const msg = document.getElementById("passwordMsg");
+
+        if (!current || !next) {
+          msg.className = "form-msg error";
+          msg.textContent = "Please fill in both fields.";
+          return;
+        }
+
+        const res = await fetch(`${BASE}/users/me/password`, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            current_password: current,
+            new_password: next,
+          }),
+        });
+        const d = await res.json();
+
+        if (res.ok) {
+          msg.className = "form-msg success";
+          msg.textContent = "Password updated!";
+          document.getElementById("currentPassword").value = "";
+          document.getElementById("newPassword").value = "";
+        } else {
+          msg.className = "form-msg error";
+          msg.textContent = d.detail || "Failed to update password.";
+        }
+      }
+
+      // ── Logout ──
+      function logout() {
+        localStorage.removeItem("token");
+        localStorage.removeItem("username");
+        localStorage.removeItem("rank");
+        window.location.replace("/login.html");
+      }
+
+      // ── Delete account ──
+      function openDeleteOverlay() {
+        document.getElementById("deleteOverlay").classList.add("show");
+      }
+      function closeDeleteOverlay() {
+        document.getElementById("deleteOverlay").classList.remove("show");
+      }
+
+      async function confirmDelete() {
+        const res = await fetch(`${BASE}/users/me`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          localStorage.clear();
+          window.location.replace("/");
+        }
+      }
+
+      // ── Toast ──
+      function showToast(msg) {
+        const t = document.getElementById("toast");
+        t.textContent = msg;
+        t.classList.add("show");
+        setTimeout(() => t.classList.remove("show"), 3500);
+      }
+
+      // ── Nav search ──
+      document.getElementById("navSearch").addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && e.target.value.trim()) {
+          window.location.href = `/browse.html?q=${encodeURIComponent(e.target.value.trim())}`;
+        }
+      });
+
+      // ── Init ──
+      loadProfile();
+    </script>
+  </body>
+</html>

@@ -1165,7 +1165,7 @@
         // ── STREAMING / READING LINKS ─────────────────────────
         const linksRow = document.getElementById("linksRow");
         const links = media.links || [];
-        const token = localStorage.getItem("anibase_token");
+        const token = localStorage.getItem("token");
 
         if (links.length === 0) {
           linksRow.innerHTML = '<p class="empty">No links available.</p>';
@@ -1211,15 +1211,14 @@
 
       // ── Navbar auth state ──────────────────────────────────────────────────────
       function initNavAuth() {
-        const token = localStorage.getItem("anibase_token");
-        const username = localStorage.getItem("anibase_username");
+        const token = localStorage.getItem("token");
+        const username = localStorage.getItem("username");
         const navAuth = document.getElementById("navAuth");
         if (!navAuth) return;
 
         if (token && username) {
           navAuth.innerHTML = `
         <a href="/profile.html" class="nav-username">👤 ${username}</a>
-        <button class="btn-logout" onclick="logout()">Logout</button>
       `;
         } else {
           const next = encodeURIComponent(
@@ -1232,8 +1231,8 @@
       }
 
       function logout() {
-        localStorage.removeItem("anibase_token");
-        localStorage.removeItem("anibase_username");
+        localStorage.removeItem("token");
+        localStorage.removeItem("username");
         window.location.reload();
       }
 
@@ -1242,7 +1241,7 @@
       // currentStatus = null means not in watchlist
       function renderAddButton() {
         const widget = document.getElementById("watchlistWidget");
-        const token = localStorage.getItem("anibase_token");
+        const token = localStorage.getItem("token");
 
         if (!token) {
           const next = encodeURIComponent(
@@ -1280,7 +1279,7 @@
         panel.style.display = "block";
         panel.innerHTML = `<div style="font-size:0.82rem;color:var(--text-muted);padding:0.75rem 0;">Loading lists...</div>`;
 
-        const token = localStorage.getItem("anibase_token");
+        const token = localStorage.getItem("token");
         try {
           const listsRes = await fetch(`${API}/lists/`, {
             headers: { Authorization: `Bearer ${token}` },
@@ -1357,7 +1356,7 @@
 
       async function showAddPanel() {
         const widget = document.getElementById("watchlistWidget");
-        const token = localStorage.getItem("anibase_token");
+        const token = localStorage.getItem("token");
 
         // Show loading state on the button
         const btn = widget.querySelector(".btn-lists-toggle");
@@ -1439,7 +1438,7 @@
       }
 
       async function addToList(listId, btn) {
-        const token = localStorage.getItem("anibase_token");
+        const token = localStorage.getItem("token");
         try {
           const res = await fetch(`${API}/lists/${listId}/items`, {
             method: "POST",
@@ -1452,16 +1451,17 @@
           if (res.ok || res.status === 400) {
             btn.textContent = "✓ Added";
             btn.classList.add("added");
-            btn.disabled = false; // allow clicking again to remove
+            btn.disabled = false;
             btn.onclick = () => removeFromList(listId, btn);
           }
         } catch {
           alert("Could not add to list.");
         }
+        await checkRankUp();
       }
 
       async function removeFromList(listId, btn) {
-        const token = localStorage.getItem("anibase_token");
+        const token = localStorage.getItem("token");
         try {
           const res = await fetch(`${API}/lists/${listId}/items/${mediaId}`, {
             method: "DELETE",
@@ -1482,7 +1482,7 @@
         if (!input) return;
         const name = input.value.trim();
         if (!name) return;
-        const token = localStorage.getItem("anibase_token");
+        const token = localStorage.getItem("token");
         try {
           const res = await fetch(`${API}/lists/`, {
             method: "POST",

@@ -455,7 +455,7 @@
 
     <script>
       const API = "http://localhost:8000";
-      const token = localStorage.getItem("anibase_token");
+      const token = localStorage.getItem("token");
       if (!token) window.location.href = "/login.html?next=/myspace.html";
 
       // ── Nav search ──
@@ -469,10 +469,10 @@
       // ── Navbar auth state ──
       function updateNavAuth() {
         const btn = document.getElementById("nav-auth-btn");
-        const username = localStorage.getItem("anibase_username");
+        const username = localStorage.getItem("username");
         if (token && username) {
-          btn.textContent = username;
-          btn.href = "/myspace.html";
+          btn.textContent = `👤 ${username}`;
+          btn.href = "/profile.html";
         } else {
           btn.textContent = "Login";
           btn.href = "/login.html";
