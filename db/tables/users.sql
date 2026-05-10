@@ -1,7 +1,3 @@
--- Users Schema
-
-CREATE SCHEMA IF NOT EXISTS users;
-
 -- Core user accounts
 CREATE TABLE IF NOT EXISTS users.users (
     id            SERIAL PRIMARY KEY,

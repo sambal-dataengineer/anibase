@@ -735,13 +735,32 @@
     </div>
 
     <script>
-      const BASE = "http://localhost:8000";
+      const BASE = "";
       const API = BASE;
 
       // ── Auth gate — check BEFORE anything renders ──
       const token = localStorage.getItem("token");
       if (!token) {
         window.location.replace("/login.html?next=/profile.html");
+      }
+
+      async function authFetch(url, options = {}) {
+        const res = await fetch(url, {
+          ...options,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
+            ...(options.headers || {}),
+          },
+        });
+        if (res.status === 401) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("username");
+          localStorage.removeItem("rank");
+          window.location.replace("/login.html?next=/profile.html");
+          return null;
+        }
+        return res;
       }
 
       // ── Rank system ──
@@ -752,15 +771,21 @@
         { name: "Kage", cls: "kage", min: 100, max: null, label: "🔴 Kage" },
       ];
 
-      function getRank(items) {
+      function getRankFromCount(items) {
         for (let i = RANKS.length - 1; i >= 0; i--) {
-          if (items >= RANKS[i].min) return RANKS[i];
+          if (RANKS[i].max === null && items > RANKS[i].min) return RANKS[i];
+          if (
+            RANKS[i].max !== null &&
+            items > RANKS[i].min &&
+            items <= RANKS[i].max
+          )
+            return RANKS[i];
         }
         return RANKS[0];
       }
 
       function getProgress(items) {
-        const rank = getRank(items);
+        const rank = getRankFromCount(items);
         if (!rank.max)
           return { pct: 100, label: "Max Rank Achieved", next: "" };
         const pct = Math.min(
@@ -775,7 +800,7 @@
       }
 
       function renderRank(items) {
-        const rank = getRank(items);
+        const rank = getRankFromCount(items);
         const prog = getProgress(items);
         const badge = document.getElementById("rankBadge");
 
@@ -812,16 +837,8 @@
       // ── Load profile ──
       async function loadProfile() {
         try {
-          const res = await fetch(`${BASE}/users/me`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-
-          if (res.status === 401) {
-            localStorage.removeItem("token");
-            localStorage.removeItem("username");
-            window.location.replace("/login.html?next=/profile.html");
-            return;
-          }
+          const res = await authFetch(`${BASE}/users/me`);
+          if (!res) return;
 
           const d = await res.json();
 
@@ -865,14 +882,11 @@
         const email = document.getElementById("editEmail").value.trim();
         const msg = document.getElementById("profileMsg");
 
-        const res = await fetch(`${BASE}/users/me`, {
+        const res = await authFetch(`${BASE}/users/me`, {
           method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
           body: JSON.stringify({ username, email }),
         });
+        if (!res) return;
         const d = await res.json();
 
         if (res.ok) {
@@ -901,17 +915,14 @@
           return;
         }
 
-        const res = await fetch(`${BASE}/users/me/password`, {
+        const res = await authFetch(`${BASE}/users/me/password`, {
           method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
           body: JSON.stringify({
             current_password: current,
             new_password: next,
           }),
         });
+        if (!res) return;
         const d = await res.json();
 
         if (res.ok) {
@@ -942,10 +953,8 @@
       }
 
       async function confirmDelete() {
-        const res = await fetch(`${BASE}/users/me`, {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await authFetch(`${BASE}/users/me`, { method: "DELETE" });
+        if (!res) return;
         if (res.ok) {
           localStorage.clear();
           window.location.replace("/");

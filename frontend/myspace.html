@@ -454,9 +454,28 @@
     </div>
 
     <script>
-      const API = "http://localhost:8000";
+      const API = "";
       const token = localStorage.getItem("token");
       if (!token) window.location.href = "/login.html?next=/myspace.html";
+
+      async function authFetch(url, options = {}) {
+        const res = await fetch(url, {
+          ...options,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
+            ...(options.headers || {}),
+          },
+        });
+        if (res.status === 401) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("username");
+          localStorage.removeItem("rank");
+          window.location.replace("/login.html?next=/myspace.html");
+          return null;
+        }
+        return res;
+      }
 
       // ── Nav search ──
       document
@@ -568,9 +587,8 @@
           .join("");
 
         try {
-          const res = await fetch(`${API}/lists/${listId}/items`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          const res = await authFetch(`${API}/lists/${listId}/items`);
+          if (!res) return;
           if (!res.ok) throw new Error();
           const items = await res.json();
           itemsEl.dataset.loaded = "true";
@@ -622,10 +640,11 @@
 
       async function removeItem(listId, mediaId) {
         try {
-          const res = await fetch(`${API}/lists/${listId}/items/${mediaId}`, {
-            method: "DELETE",
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          const res = await authFetch(
+            `${API}/lists/${listId}/items/${mediaId}`,
+            { method: "DELETE" },
+          );
+          if (!res) return;
           if (!res.ok) throw new Error();
           const row = document.querySelector(
             `#items-${listId} [data-media-id="${mediaId}"]`,
@@ -647,10 +666,10 @@
       async function deleteList(listId) {
         if (!confirm("Delete this list? This cannot be undone.")) return;
         try {
-          const res = await fetch(`${API}/lists/${listId}`, {
+          const res = await authFetch(`${API}/lists/${listId}`, {
             method: "DELETE",
-            headers: { Authorization: `Bearer ${token}` },
           });
+          if (!res) return;
           if (!res.ok) throw new Error();
           document.getElementById(`list-card-${listId}`).remove();
           const remaining = document.querySelectorAll(".list-card").length;
@@ -677,14 +696,11 @@
         const name = input.value.trim();
         if (!name) return;
         try {
-          const res = await fetch(`${API}/lists/`, {
+          const res = await authFetch(`${API}/lists/`, {
             method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
             body: JSON.stringify({ name }),
           });
+          if (!res) return;
           if (!res.ok) throw new Error();
           const newList = await res.json();
           input.value = "";
@@ -719,9 +735,8 @@
       async function loadLists() {
         showListsSkeletons();
         try {
-          const res = await fetch(`${API}/lists/`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          const res = await authFetch(`${API}/lists/`);
+          if (!res) return;
           if (!res.ok) throw new Error();
           renderLists(await res.json());
         } catch {

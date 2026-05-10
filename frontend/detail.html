@@ -1016,8 +1016,53 @@
       FastAPI + PostgreSQL
     </footer>
 
+    <!-- Rank Up Overlay -->
+    <div
+      id="rankUpOverlay"
+      style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.88);
+        z-index: 99999;
+        align-items: center;
+        justify-content: center;
+      "
+    >
+      <div id="rankUpBox">
+        <div id="rankUpEmoji"></div>
+        <div id="rankUpTitle">RANK UP!</div>
+        <div id="rankUpName"></div>
+        <div id="rankUpSub"></div>
+        <button id="rankUpDismiss" onclick="dismissRankUp()">
+          Awesome! 🎉
+        </button>
+      </div>
+    </div>
+
     <script>
-      const API = "http://localhost:8000";
+      const API = "";
+
+      async function authFetch(url, options = {}) {
+        const res = await fetch(url, {
+          ...options,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
+            ...(options.headers || {}),
+          },
+        });
+        if (res.status === 401) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("username");
+          localStorage.removeItem("rank");
+          window.location.replace(
+            `/login.html?next=${encodeURIComponent(window.location.pathname + window.location.search)}`,
+          );
+          return null;
+        }
+        return res;
+      }
 
       // ── Skeletons ─────────────────────────────────────────
       function showCharSkeletons(n = 6) {
@@ -1026,10 +1071,10 @@
           const el = document.createElement("div");
           el.className = "skeleton-char";
           el.innerHTML = `
-        <div class="skeleton-char-img skeleton-pulse"></div>
-        <div class="skeleton-char-line skeleton-pulse"></div>
-        <div class="skeleton-char-line short skeleton-pulse"></div>
-      `;
+              <div class="skeleton-char-img skeleton-pulse"></div>
+              <div class="skeleton-char-line skeleton-pulse"></div>
+              <div class="skeleton-char-line short skeleton-pulse"></div>
+            `;
           row.appendChild(el);
         }
       }
@@ -1040,12 +1085,12 @@
           const el = document.createElement("div");
           el.className = "skeleton-relation";
           el.innerHTML = `
-        <div class="skeleton-relation-cover skeleton-pulse"></div>
-        <div class="skeleton-relation-info">
-          <div class="skeleton-relation-line skeleton-pulse"></div>
-          <div class="skeleton-relation-line short skeleton-pulse"></div>
-        </div>
-      `;
+              <div class="skeleton-relation-cover skeleton-pulse"></div>
+              <div class="skeleton-relation-info">
+                <div class="skeleton-relation-line skeleton-pulse"></div>
+                <div class="skeleton-relation-line short skeleton-pulse"></div>
+              </div>
+            `;
           row.appendChild(el);
         }
       }
@@ -1112,9 +1157,9 @@
         const card = document.createElement("div");
         card.className = "info-card";
         card.innerHTML = `
-            <div class="info-card-label">${label}</div>
-            <div class="info-card-value">${value}</div>
-          `;
+                  <div class="info-card-label">${label}</div>
+                  <div class="info-card-value">${value}</div>
+                `;
         document.getElementById("infoCards").appendChild(card);
       }
 
@@ -1162,9 +1207,9 @@
         const statusEl = document.getElementById("heroStatus");
         const statusTxt = formatStatus(media.status);
         statusEl.innerHTML = `
-            <span class="status-dot ${statusClass(media.status)}"></span>
-            ${statusTxt}
-          `;
+                  <span class="status-dot ${statusClass(media.status)}"></span>
+                  ${statusTxt}
+                `;
 
         // ── INFO CARDS ────────────────────────────────────────
         // details is a nested object from the API
@@ -1217,10 +1262,10 @@
             // Add "main" class for accent border on MAIN characters
             card.className = `char-card ${c.role === "MAIN" ? "main" : ""}`;
             card.innerHTML = `
-                <img src="${c.image_url || ""}" alt="${c.name_full}" loading="lazy" />
-                <div class="char-name">${c.name_full || "Unknown"}</div>
-                <div class="char-role">${c.role || ""}</div>
-              `;
+                      <img src="${c.image_url || ""}" alt="${c.name_full}" loading="lazy" />
+                      <div class="char-name">${c.name_full || "Unknown"}</div>
+                      <div class="char-role">${c.role || ""}</div>
+                    `;
             charRow.appendChild(card);
           });
         }
@@ -1242,18 +1287,18 @@
             card.href = `detail.html?id=${r.id}`;
             card.className = "relation-card";
             card.innerHTML = `
-                <img class="relation-cover"
-                     src="${r.cover_image_url || ""}"
-                     alt="${r.title_english || r.title_romaji}"
-                     loading="lazy" />
-                <div class="relation-info">
-                  <div class="relation-type">${r.relation_type || ""}</div>
-                  <div class="relation-title">
-                    ${r.title_english || r.title_romaji}
-                  </div>
-                  <div class="relation-format">${r.format || r.type || ""}</div>
-                </div>
-              `;
+                      <img class="relation-cover"
+                           src="${r.cover_image_url || ""}"
+                           alt="${r.title_english || r.title_romaji}"
+                           loading="lazy" />
+                      <div class="relation-info">
+                        <div class="relation-type">${r.relation_type || ""}</div>
+                        <div class="relation-title">
+                          ${r.title_english || r.title_romaji}
+                        </div>
+                        <div class="relation-format">${r.format || r.type || ""}</div>
+                      </div>
+                    `;
             relRow.appendChild(card);
           });
         }
@@ -1271,12 +1316,12 @@
             window.location.pathname + window.location.search,
           );
           linksRow.innerHTML = `
-              <div class="links-locked">
-                <span class="links-locked-icon">🔒</span>
-                <span class="links-locked-text">Login to view streaming and reading sources</span>
-                <a href="/login.html?next=${next}" class="links-locked-btn">Login</a>
-              </div>
-            `;
+                    <div class="links-locked">
+                      <span class="links-locked-icon">🔒</span>
+                      <span class="links-locked-text">Login to view streaming and reading sources</span>
+                      <a href="/login.html?next=${next}" class="links-locked-btn">Login</a>
+                    </div>
+                  `;
         } else {
           links.forEach((link) => {
             const btn = document.createElement("a");
@@ -1314,15 +1359,15 @@
 
         if (token && username) {
           navAuth.innerHTML = `
-        <a href="/profile.html" class="nav-username">👤 ${username}</a>
-      `;
+              <a href="/profile.html" class="nav-username">👤 ${username}</a>
+            `;
         } else {
           const next = encodeURIComponent(
             window.location.pathname + window.location.search,
           );
           navAuth.innerHTML = `
-        <a href="/login.html?next=${next}" class="btn-login">Login</a>
-      `;
+              <a href="/login.html?next=${next}" class="btn-login">Login</a>
+            `;
         }
       }
 
@@ -1348,8 +1393,8 @@
         }
 
         widget.innerHTML = `
-      <button class="btn-lists-toggle" onclick="showAddPanel()">＋ Add</button>
-      <div id="lists-panel" style="display:none; width:100%;"></div>`;
+            <button class="btn-lists-toggle" onclick="showAddPanel()">＋ Add</button>
+            <div id="lists-panel" style="display:none; width:100%;"></div>`;
       }
 
       // ── Add Panel ──────────────────────────────────────────────────────────────
@@ -1375,18 +1420,14 @@
         panel.style.display = "block";
         panel.innerHTML = `<div style="font-size:0.82rem;color:var(--text-muted);padding:0.75rem 0;">Loading lists...</div>`;
 
-        const token = localStorage.getItem("token");
         try {
-          const listsRes = await fetch(`${API}/lists/`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          if (!listsRes) return;
           userLists = listsRes.ok ? await listsRes.json() : [];
 
           const itemChecks = await Promise.all(
             userLists.map(async (list) => {
-              const res = await fetch(`${API}/lists/${list.id}/items`, {
-                headers: { Authorization: `Bearer ${token}` },
-              });
+              const res = await authFetch(`${API}/lists/${list.id}/items`);
+              if (!res) return [];
               const items = res.ok ? await res.json() : [];
               return items.some((i) => i.media_id === parseInt(mediaId));
             }),
@@ -1410,36 +1451,36 @@
         const listsHtml = userLists
           .map(
             (list) => `
-      <div class="add-panel-list-row">
-        <span>📋 ${list.name}</span>
-        <button class="btn-add-to-list ${list.hasItem ? "added" : ""}"
-          data-list-id="${list.id}"
-          onclick="${list.hasItem ? `removeFromList(${list.id}, this)` : `addToList(${list.id}, this)`}">
-          ${list.hasItem ? "✓ Added" : "+ Add"}
-        </button>
-      </div>`,
+            <div class="add-panel-list-row">
+              <span>📋 ${list.name}</span>
+              <button class="btn-add-to-list ${list.hasItem ? "added" : ""}"
+                data-list-id="${list.id}"
+                onclick="${list.hasItem ? `removeFromList(${list.id}, this)` : `addToList(${list.id}, this)`}">
+                ${list.hasItem ? "✓ Added" : "+ Add"}
+              </button>
+            </div>`,
           )
           .join("");
 
         const createSection = showCreateInput
           ? `
-      <div class="create-list-inline">
-        <input type="text" id="inline-list-input" placeholder="List name..." maxlength="100" />
-        <button onclick="submitNewList()">Create</button>
-      </div>`
+            <div class="create-list-inline">
+              <input type="text" id="inline-list-input" placeholder="List name..." maxlength="100" />
+              <button onclick="submitNewList()">Create</button>
+            </div>`
           : `
-      <button class="btn-create-new-list" onclick="renderListsPanel(true)">+ Create new list</button>`;
+            <button class="btn-create-new-list" onclick="renderListsPanel(true)">+ Create new list</button>`;
 
         panel.innerHTML = `
-      <div class="add-panel" style="margin-top:0.5rem;">
-        <div class="add-panel-section-label">My Lists</div>
-        ${
-          userLists.length === 0 && !showCreateInput
-            ? '<div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:0.4rem;">No lists yet.</div>'
-            : listsHtml
-        }
-        ${createSection}
-      </div>`;
+            <div class="add-panel" style="margin-top:0.5rem;">
+              <div class="add-panel-section-label">My Lists</div>
+              ${
+                userLists.length === 0 && !showCreateInput
+                  ? '<div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:0.4rem;">No lists yet.</div>'
+                  : listsHtml
+              }
+              ${createSection}
+            </div>`;
 
         if (showCreateInput) {
           const input = document.getElementById("inline-list-input");
@@ -1452,7 +1493,6 @@
 
       async function showAddPanel() {
         const widget = document.getElementById("watchlistWidget");
-        const token = localStorage.getItem("token");
 
         // Show loading state on the button
         const btn = widget.querySelector(".btn-lists-toggle");
@@ -1462,16 +1502,14 @@
         }
 
         try {
-          const listsRes = await fetch(`${API}/lists/`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          const listsRes = await authFetch(`${API}/lists/`);
+          if (!listsRes) return;
           userLists = listsRes.ok ? await listsRes.json() : [];
 
           const itemChecks = await Promise.all(
             userLists.map(async (list) => {
-              const res = await fetch(`${API}/lists/${list.id}/items`, {
-                headers: { Authorization: `Bearer ${token}` },
-              });
+              const res = await authFetch(`${API}/lists/${list.id}/items`);
+              if (!res) return [];
               const items = res.ok ? await res.json() : [];
               return items.some((i) => i.media_id === parseInt(mediaId));
             }),
@@ -1494,35 +1532,35 @@
         const listsHtml = userLists
           .map(
             (list) => `
-      <div class="add-panel-list-row">
-        <span>📋 ${list.name}</span>
-        <button class="btn-add-to-list ${list.hasItem ? "added" : ""}"
-  data-list-id="${list.id}"
-  onclick="${list.hasItem ? `removeFromList(${list.id}, this)` : `addToList(${list.id}, this)`}">
-          ${list.hasItem ? "✓ Added" : "+ Add"}
-        </button>
-      </div>`,
+            <div class="add-panel-list-row">
+              <span>📋 ${list.name}</span>
+              <button class="btn-add-to-list ${list.hasItem ? "added" : ""}"
+        data-list-id="${list.id}"
+        onclick="${list.hasItem ? `removeFromList(${list.id}, this)` : `addToList(${list.id}, this)`}">
+                ${list.hasItem ? "✓ Added" : "+ Add"}
+              </button>
+            </div>`,
           )
           .join("");
 
         const createSection = showCreateInput
           ? `
-      <div class="create-list-inline">
-        <input type="text" id="inline-list-input" placeholder="List name..." maxlength="100" />
-        <button onclick="submitNewList()">Create</button>
-      </div>`
+            <div class="create-list-inline">
+              <input type="text" id="inline-list-input" placeholder="List name..." maxlength="100" />
+              <button onclick="submitNewList()">Create</button>
+            </div>`
           : `<button class="btn-create-new-list" onclick="renderAddPanel(true)">+ Create new list</button>`;
 
         widget.innerHTML = `
-      <div class="add-panel">
-        <div class="add-panel-section-label">My Lists</div>
-        ${
-          userLists.length === 0 && !showCreateInput
-            ? '<div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:0.4rem;">No lists yet.</div>'
-            : listsHtml
-        }
-        ${createSection}
-      </div>`;
+            <div class="add-panel">
+              <div class="add-panel-section-label">My Lists</div>
+              ${
+                userLists.length === 0 && !showCreateInput
+                  ? '<div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:0.4rem;">No lists yet.</div>'
+                  : listsHtml
+              }
+              ${createSection}
+            </div>`;
 
         if (showCreateInput) {
           const input = document.getElementById("inline-list-input");
@@ -1534,16 +1572,12 @@
       }
 
       async function addToList(listId, btn) {
-        const token = localStorage.getItem("token");
         try {
-          const res = await fetch(`${API}/lists/${listId}/items`, {
+          const res = await authFetch(`${API}/lists/${listId}/items`, {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
             body: JSON.stringify({ media_id: parseInt(mediaId) }),
           });
+          if (!res) return;
           if (res.ok || res.status === 400) {
             btn.textContent = "✓ Added";
             btn.classList.add("added");
@@ -1557,12 +1591,14 @@
       }
 
       async function removeFromList(listId, btn) {
-        const token = localStorage.getItem("token");
         try {
-          const res = await fetch(`${API}/lists/${listId}/items/${mediaId}`, {
-            method: "DELETE",
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          const res = await authFetch(
+            `${API}/lists/${listId}/items/${mediaId}`,
+            {
+              method: "DELETE",
+            },
+          );
+          if (!res) return;
           if (res.ok) {
             btn.textContent = "+ Add";
             btn.classList.remove("added");
@@ -1578,16 +1614,12 @@
         if (!input) return;
         const name = input.value.trim();
         if (!name) return;
-        const token = localStorage.getItem("token");
         try {
-          const res = await fetch(`${API}/lists/`, {
+          const res = await authFetch(`${API}/lists/`, {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
             body: JSON.stringify({ name }),
           });
+          if (!res) return;
           if (!res.ok) throw new Error();
           const newList = await res.json();
           userLists.push({ ...newList, hasItem: false });
@@ -1636,25 +1668,26 @@
 
       function getRankFromCount(items) {
         for (let i = RANKS.length - 1; i >= 0; i--) {
-          if (items >= RANKS[i].min) return RANKS[i];
+          if (RANKS[i].max === null && items > RANKS[i].min) return RANKS[i];
+          if (
+            RANKS[i].max !== null &&
+            items > RANKS[i].min &&
+            items <= RANKS[i].max
+          )
+            return RANKS[i];
         }
         return RANKS[0];
       }
 
       async function getTotalUniqueItems() {
-        const token = localStorage.getItem("token");
         try {
-          const listsRes = await fetch(`${API}/lists/`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          if (!listsRes.ok) return 0;
+          const listsRes = await authFetch(`${API}/lists/`);
+          if (!listsRes || !listsRes.ok) return 0;
           const lists = await listsRes.json();
           const allItems = await Promise.all(
             lists.map(async (list) => {
-              const res = await fetch(`${API}/lists/${list.id}/items`, {
-                headers: { Authorization: `Bearer ${token}` },
-              });
-              return res.ok ? await res.json() : [];
+              const res = await authFetch(`${API}/lists/${list.id}/items`);
+              return res && res.ok ? await res.json() : [];
             }),
           );
           const uniqueIds = new Set(allItems.flat().map((i) => i.media_id));
@@ -1700,16 +1733,5 @@
         renderAddButton();
       });
     </script>
-    <div id="rankUpOverlay" style="display: none">
-      <div id="rankUpBox">
-        <div id="rankUpEmoji"></div>
-        <div id="rankUpTitle">RANK UP!</div>
-        <div id="rankUpName"></div>
-        <div id="rankUpSub"></div>
-        <button id="rankUpDismiss" onclick="dismissRankUp()">
-          Awesome! 🎉
-        </button>
-      </div>
-    </div>
   </body>
 </html>
