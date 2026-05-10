@@ -466,8 +466,11 @@
 
           // ✅ Success — store token + username, redirect back
           localStorage.setItem("token", data.access_token);
-          const payload = JSON.parse(atob(data.access_token.split(".")[1]));
-          localStorage.setItem("username", payload.sub);
+          const meRes = await fetch("/users/me", {
+            headers: { Authorization: `Bearer ${data.access_token}` },
+          });
+          const meData = await meRes.json();
+          localStorage.setItem("username", meData.username);
 
           showMsg(
             "login-success",
@@ -526,8 +529,11 @@
 
           // ✅ Success — store token + username, redirect back
           localStorage.setItem("token", data.access_token);
-          const payload = JSON.parse(atob(data.access_token.split(".")[1]));
-          localStorage.setItem("username", payload.sub);
+          const meRes = await fetch("/users/me", {
+            headers: { Authorization: `Bearer ${data.access_token}` },
+          });
+          const meData = await meRes.json();
+          localStorage.setItem("username", meData.username);
 
           showMsg(
             "signup-success",
