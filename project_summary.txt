@@ -1,0 +1,115 @@
+AniBase — Project Summary
+=========================
+ 
+Overview
+--------
+AniBase is a full-stack anime and manga discovery platform built on a custom
+data pipeline ingesting 10,000 titles from the AniList GraphQL API into a
+domain-structured PostgreSQL database. The platform exposes a FastAPI backend
+with 18 REST endpoints and serves a plain HTML/CSS/Vanilla JS frontend with
+no build toolchain.
+ 
+Data Pipeline
+-------------
+- Source: AniList GraphQL API (public, no auth required)
+- Transport: Python requests library, paginated GraphQL queries (50 items/page)
+- Volume: 100 pages x 2 media types = 10,000 titles
+- Rate limiting: 1 request/second to respect AniList's 90 req/min limit
+- Upsert strategy: ON CONFLICT DO NOTHING / DO UPDATE for safe re-runs
+- Commit strategy: per-item transactions — single item failure rolls back
+  only that item, not the entire page
+- Handles: genres, tags, characters, external links, relations,
+  recommendations across 14 tables in a single ingestion run
+ 
+Database Design
+---------------
+Deliberately uses domain-based schema architecture rather than medallion
+(Bronze/Silver/Gold) to demonstrate architectural flexibility:
+ 
+  media           — core media table, unified anime + manga
+  metadata        — episode/chapter/season/airing details (1:1 with media)
+  catalog         — genres + tags with junction tables (many-to-many)
+  characters      — character profiles + media_characters junction
+  external_links  — streaming/reading URLs per media
+  relations       — related media edges (SEQUEL, PREQUEL, SPIN_OFF, etc.)
+  users           — accounts, lists, list_items (Phase 2)
+ 
+7 schemas, 14 tables, ~48K characters, ~30K links, ~27K recommendations
+ 
+Backend
+-------
+- Framework: FastAPI with SQLAlchemy ORM (async-compatible setup)
+- DB driver: psycopg2-binary
+- ORM pattern: joinedload() on detail endpoints to prevent N+1 queries
+- Auth: JWT (HS256, 30min expiry) via python-jose + bcrypt via passlib
+- Password storage: bcrypt hashed, never stored plain
+- Security: all list/user endpoints verify ownership via current_user.id
+- CORS: allow_origins=["*"] for frontend access
+- Static file serving: FastAPI StaticFiles mount (last in main.py)
+- 404 handling: custom exception_handler returning frontend/404.html
+ 
+Key Endpoints
+-------------
+  GET  /media/                     paginated media list with filters
+  GET  /media/search?q=            title search with type/genre filters
+  GET  /media/{id}                 full detail with joinedload relationships
+  GET  /media/{id}/characters      sorted MAIN → SUPPORTING → BACKGROUND
+  GET  /media/{id}/relations       related media with relation_type
+  GET  /media/{id}/recommendations sorted by rating desc
+  POST /auth/register              bcrypt hash + JWT response
+  POST /auth/login                 credential verify + JWT response
+  GET  /users/me                   profile + stats (raw SQL aggregation)
+  PUT  /users/me/password          requires current_password verification
+  GET  /lists/{id}/items           list items with media_type, media_format
+ 
+Frontend
+--------
+- Zero frameworks, zero build step — plain HTML + CSS + Vanilla JS
+- CSS custom properties for entire color palette (dark/cinematic theme)
+- fetch() + async/await for all API calls using relative URLs (production-safe)
+- URLSearchParams for reading ?id=, ?q=, ?type=, ?genre= from URL
+- history.replaceState() to sync URL on filter changes without page reload
+- IntersectionObserver for infinite scroll (sentinel div pattern)
+- Debounced search (400ms clearTimeout + setTimeout)
+- Loading skeletons with shimmer animation on all data-heavy pages
+- JWT stored in localStorage, decoded via atob() for payload inspection
+- mousedown (not click) for click-outside panel detection
+- Mobile responsive via @media (max-width: 768px) — sidebar collapses
+  to horizontal scrollable filter bar
+ 
+Deployment
+----------
+- App host: Render (free tier, auto-deploy from GitHub on push)
+- Database: Neon serverless PostgreSQL (free tier, direct connection URL)
+- Keep-alive: cron-job.org pings /health every 10 minutes
+- Environment: DATABASE_URL + SECRET_KEY injected as Render env variables
+- No Docker — Procfile + requirements.txt sufficient for Render detection
+ 
+Notable Engineering Decisions
+------------------------------
+- Pooler vs direct connection: Neon's PgBouncer pooler silently swallows
+  psycopg2 commits — direct connection URL required for ingestion
+- StaticFiles must be mounted last in main.py — routers registered first
+- bcrypt pinned to 4.0.1 — newer versions incompatible with passlib 1.7.4
+- Raw SQL in SQLAlchemy 2.x requires text() wrapper
+- Junction table ORM models must be defined before Media for secondary=
+  resolution to work correctly
+- visibility:hidden used for page load masking (preserves layout unlike
+  display:none)
+- Rank computed client-side from deduplicated media_ids across all lists
+  using a Set — avoids extra backend endpoint
+ 
+Live Demo
+---------
+https://anibase-ayix.onrender.com
+ 
+Repository
+----------
+https://github.com/sambal-dataengineer/anibase
+ 
+Author
+------
+Sambal Agarwal — Aspiring Data Engineer, Bengaluru
+GitHub: sambal-dataengineer
+LinkedIn: sambal-agarwal-843a43339
+Email: sambalagarwal@gmail.com
