@@ -466,7 +466,8 @@
 
           // ✅ Success — store token + username, redirect back
           localStorage.setItem("token", data.access_token);
-          localStorage.setItem("username", data.username);
+          const payload = JSON.parse(atob(data.access_token.split(".")[1]));
+          localStorage.setItem("username", payload.sub);
 
           showMsg(
             "login-success",
@@ -525,7 +526,8 @@
 
           // ✅ Success — store token + username, redirect back
           localStorage.setItem("token", data.access_token);
-          localStorage.setItem("username", data.username);
+          const payload = JSON.parse(atob(data.access_token.split(".")[1]));
+          localStorage.setItem("username", payload.sub);
 
           showMsg(
             "signup-success",
