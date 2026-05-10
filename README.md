@@ -199,9 +199,35 @@ Open `http://localhost:8000`
 
 ---
 
+## Future Improvements
+
+- [ ] **Email verification** — verify email on registration before account activation
+- [ ] **Forgot password / reset flow** — email-based password reset link
+- [ ] **Rank-up celebration on profile** — currently only triggers on detail.html, should also show fullscreen overlay on profile visit
+- [ ] **Real-time airing countdown** — detail page shows next episode airing time using `next_airing_at` already stored in DB
+- [ ] **Scheduled data refresh** — re-run ingestion periodically to update scores, airing status, and new titles (currently a one-time ingestion)
+- [ ] **Query optimisation** — add indexes on frequently filtered columns (type, status, average_score) for faster browse/search at scale
+- [ ] **Connection pooling** — replace psycopg2 direct connection with SQLAlchemy connection pool for better concurrency under load
+- [ ] **JWT refresh tokens** — current tokens expire in 30 min, forcing re-login; refresh token flow would keep users logged in seamlessly
+- [ ] **Docker setup** — containerise the app for easier local setup
+- [ ] **CI/CD pipeline** — automated testing and deployment via GitHub Actions
+- [ ] **AWS migration** — move from Render/Neon to AWS (EC2 + RDS) for production-grade infrastructure
+
+---
+
 ## Author
 
-**Sambal Agarwal** — Aspiring Data Engineer, Bengaluru
+**Sambal Agarwal**
+Aspiring Data Engineer | Data Engineering • Analytics • Machine Learning
 
-[![LinkedIn]](https://www.linkedin.com/in/sambal-agarwal-843a43339)
-[![GitHub]](https://github.com/sambal-dataengineer)
+- 🔗 GitHub: [github.com/sambal-dataengineer](https://github.com/sambal-dataengineer)
+- 💼 LinkedIn: [linkedin.com/in/sambal-agarwal-843a43339](https://www.linkedin.com/in/sambal-agarwal-843a43339)
+- 📧 Email: sambalagarwal@gmail.com
+
+> 🚀 Open to internships and entry-level roles in Data Engineering / Analytics
+
+---
+
+## License
+
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
